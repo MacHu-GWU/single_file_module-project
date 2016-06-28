@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+"""
+
+__version__ = "0.0.1"
+__short_description__ = "Collection of excellent single file module."
+__license__ = "MIT"
