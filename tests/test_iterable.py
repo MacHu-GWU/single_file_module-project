@@ -223,6 +223,18 @@ def test_shift_and_pad():
     assert iterable.shift_and_pad(array, -3, None) == [None, None, None]
 
 
+def test_difference():
+    assert iterable.difference([1, 2, 3], 0) == [0, 0, 0]
+    assert iterable.difference([1, 2, 3], 1) == [1, 1]
+    assert iterable.difference([1, 2, 3], 2) == [2,]
+    
+    with pytest.raises(ValueError):
+        iterable.difference([1, 2, 3], -1)
+    
+    with pytest.raises(ValueError):
+        iterable.difference([1, 2, 3], 3)
+            
+            
 if __name__ == "__main__":
     import py
     import os

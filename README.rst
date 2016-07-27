@@ -9,17 +9,15 @@
 
 Welcome to sfm Documentation
 ===============================================================================
-This is just a example project for demonstration purpose.
+Collection of useful single file module. Please install required package respectively by your self.
 
 
 **Quick Links**
 -------------------------------------------------------------------------------
 - `GitHub Homepage <https://github.com/MacHu-GWU/sfm-project>`_
-- `Online Documentation <http://pythonhosted.org/sfm>`_
 - `PyPI download <https://pypi.python.org/pypi/sfm>`_
 - `Install <install_>`_
 - `Issue submit and feature request <https://github.com/MacHu-GWU/sfm-project/issues>`_
-- `API reference and source code <http://pythonhosted.org/sfm/py-modindex.html>`_
 
 
 .. _install:

@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+This module provides some easy function to generate random text from built-in 
+templates.
+
+- :func:`rand_str`: fixed-length string
+- :func:`rand_pwd`: random password
+- :func:`rand_phone`: random phone number
+- :func:`rand_ssn`: random ssn
+- :func:`rand_email`: random email
+"""
+
+import random
+import string
+
+CHARSET_ALPHA_DIGITS = string.ascii_letters + string.digits
+CHARSET_PASSWORD = CHARSET_ALPHA_DIGITS + "!@#$%^&*()"
+DOMAIN_SURFIX = ["com", "net", "org", "edu"]
+
+
+def rand_str(length, allowed=CHARSET_ALPHA_DIGITS):
+    """Generate fixed-length random string from your allowed character pool.
+
+    :param length: total length of this string
+    :param allowed: allowed charset
+
+    Example::
+
+        >>> import string
+        >>> rand_str(32)
+        H6ExQPNLzb4Vp3YZtfpyzLNPFwdfnwz6
+    """
+    res = list()
+    for _ in range(length):
+        res.append(random.choice(allowed))
+    return "".join(res)
+
+
+def rand_pwd(length):
+    """Random Internet password.
+
+    Example::
+
+        >>> rand_pwd(12)
+        TlhM$^jzculH
+    """
+    return rand_str(length, CHARSET_PASSWORD)
+
+
+def rand_phone():
+    """Random US phone number. (10 digits)
+
+    Example::
+
+        >>> rand_phone()
+        (306)-746-6690
+    """
+    return "(%s)-%s-%s" % (rand_str(3, string.digits),
+                           rand_str(3, string.digits),
+                           rand_str(3, string.digits))
+
+
+def rand_ssn():
+    """Random SSN. (9 digits)
+
+    Example::
+
+        >>> rand_ssn()
+        295-50-0178
+    """
+    return "%s-%s-%s" % (rand_str(3, string.digits),
+                         rand_str(2, string.digits),
+                         rand_str(4, string.digits))
+
+
+def rand_email():
+    """Random email.
+
+    Usage Example::
+
+        >>> rand_email()
+        Z4Lljcbdw7m@npa.net
+    """
+    name = rand_str(random.randint(4, 14), string.ascii_lowercase) + \
+        rand_str(random.randint(1, 4), string.digits)
+    domain = rand_str(random.randint(2, 10), string.ascii_lowercase)
+    surfix = random.choice(DOMAIN_SURFIX)
+    return "%s@%s.%s" % (name, domain, surfix)
+
+
+def rand_article(num_p=(4, 10), num_s=(2, 15), num_w=(5, 40)):
+    """Random article text.
+
+    Example::
+
+        >>> rand_article()
+        ...
+    """
+    article = list()
+    for _ in range(random.randint(*num_p)):
+        p = list()
+        for _ in range(random.randint(*num_s)):
+            s = list()
+            for _ in range(random.randint(*num_w)):
+                s.append(
+                    rand_str(random.randint(1, 15), string.ascii_lowercase))
+            p.append(" ".join(s))
+        article.append(". ".join(p))
+    return "\n\n".join(article)
+
+
+#--- Unittest ---
+if __name__ == "__main__":
+    print(rand_str(32))
+    print(rand_pwd(12))
+    print(rand_phone())
+    print(rand_ssn())
+    print(rand_email())
+    print(rand_article())

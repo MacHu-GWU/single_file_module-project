@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
+"""
+function logic flow constructor.
+"""
+
+
+def try_ntime(max_try, func, *args, **kwargs):
+    """Try execute a function n times, until no exception raised or tried 
+    ``max_try`` times.
+
+    **中文文档**
+
+    反复尝试执行一个函数若干次。直到成功为止或是重复尝试 ``max_try`` 次。期间
+    只要有一次成功, 就正常返回。如果一次都没有成功, 则行为跟最后一次执行了
+    ``func(*args, **kwargs)`` 一样。
+    """
+    for i in range(max_try):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            current_exception = e
+    raise current_exception
+
+
+#--- Unittest ---
+if __name__ == "__main__":
+    import random
+    
+    def bet_and_win():
+        value = random.randint(2, 12)
+        if value > 7:
+            print("%s point, You Win!" % value)
+        else:
+            raise Exception("%s point, You Lose!" % value)
+    
+    flow.try_ntime(10, bet_and_win)

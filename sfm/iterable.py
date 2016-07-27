@@ -461,3 +461,18 @@ def size_of_generator(generator, memory_efficient=True):
         return counter
     else:
         return len(list(generator))
+
+# Function
+def difference(array, k=1):
+    """Calculate l[n] - l[n-k]
+    """
+    if (len(array) - k) < 1:
+        raise ValueError()
+    if k < 0:
+        raise ValueError("k has to be greater or equal than zero!")
+    elif k == 0:
+        return [i - i for i in array]
+    else:
+        return [j - i for i, j in zip(array[:-k], array[k:])]
+        
+    
