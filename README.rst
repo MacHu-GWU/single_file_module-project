@@ -1,4 +1,4 @@
-.. image:: https://travis-ci.org/MacHu-GWU/sfm-project.svg?branch=master
+.. image:: https://travis-ci.org/MacHu-GWU/single_file_module-project.svg?branch=master
 
 .. image:: https://img.shields.io/pypi/v/sfm.svg
 
