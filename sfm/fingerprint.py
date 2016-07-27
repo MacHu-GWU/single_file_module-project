@@ -140,10 +140,6 @@ class FingerPrint(object):
             information in audio, video) of a multi-media file, then the hash 
             value gonna also change.
         """
-        if not os.path.exists(abspath):
-            raise FileNotFoundError(
-                "[Errno 2] No such file or directory: '%s'" % abspath)
-
         m = self.hash_algo()
         with open(abspath, "rb") as f:
             if nbytes:
