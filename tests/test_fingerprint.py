@@ -9,7 +9,7 @@ def test_hash_anything():
     a_bytes = bytes(123)
     a_text = "Hello World!"
     a_pyobj = {"key": "value"}
-    a_file = "test_all.py"
+    a_file = __file__.replace("test_fingerprint.py", "test_all.py")
 
     if is_py2:
         assert fingerprint.of_bytes(

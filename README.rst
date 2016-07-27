@@ -14,7 +14,7 @@ Collection of useful single file module. Please install required package respect
 
 **Quick Links**
 -------------------------------------------------------------------------------
-- `GitHub Homepage <https://github.com/MacHu-GWU/sfm-project>`_
+- `GitHub Homepage <https://github.com/MacHu-GWU/single_file_module-project>`_
 - `PyPI download <https://pypi.python.org/pypi/sfm>`_
 - `Install <install_>`_
 - `Issue submit and feature request <https://github.com/MacHu-GWU/sfm-project/issues>`_
