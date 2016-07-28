@@ -42,7 +42,6 @@ class FingerPrint(object):
         >>> print(fingerprint.of_file("fingerprint.py"))
         4cddcb5562cbff652b0e4c8a0300337a
     """
-    _chunk_size = 2**20
     _mapper = {
         "md5": hashlib.md5,
         "sha1": hashlib.sha1,
@@ -118,7 +117,7 @@ class FingerPrint(object):
         else:
             return m.hexdigest()
 
-    def of_file(self, abspath, nbytes=0):
+    def of_file(self, abspath, nbytes=0, chunk_size=1024):
         """Use default hash method to return hash value of a piece of a file
 
         Estimate processing time on:
@@ -140,23 +139,35 @@ class FingerPrint(object):
             information in audio, video) of a multi-media file, then the hash 
             value gonna also change.
         """
+        if nbytes < 0:
+            raise ValueError("chunk_size cannot smaller than 0")
+        if chunk_size < 1:
+            raise ValueError("chunk_size cannot smaller than 1")
+        if (nbytes > 0) and (nbytes < chunk_size):
+            chunk_size = nbytes
+    
         m = self.hash_algo()
         with open(abspath, "rb") as f:
-            if nbytes:
-                data = f.read(nbytes)
-                if data:
-                    m.update(data)
-
-            else:
+            if nbytes: # use first n bytes
+                have_reads = 0
                 while True:
-                    data = f.read(self._chunk_size)
+                    have_reads += chunk_size
+                    if have_reads > nbytes:
+                        n = nbytes - (have_reads - chunk_size)
+                        if n:
+                            data = f.read(n)
+                            m.update(data)
+                        break
+                    else:
+                        data = f.read(chunk_size)
+                        m.update(data)
+            else: # use entire content
+                while True:
+                    data = f.read(chunk_size)
                     if not data:
                         break
                     m.update(data)
-
-        if self.return_int:
-            return int(m.hexdigest(), 16)
-        else:
-            return m.hexdigest()
+                    
+        return m.hexdigest()
 
 fingerprint = FingerPrint()
