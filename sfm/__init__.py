@@ -4,6 +4,6 @@
 """
 """
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __short_description__ = "Collection of useful single file module."
 __license__ = "MIT"
