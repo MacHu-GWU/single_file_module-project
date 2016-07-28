@@ -17,7 +17,7 @@ def test_hash_anything():
     print(fingerprint.of_bytes(a_bytes))
     print(fingerprint.of_text(a_text))
     print(fingerprint.of_pyobj(a_pyobj))
-    print(fingerprint.of_file(a_file))
+    assert fingerprint.of_file(a_file) == "b8a17e5c1927a21a95263fccbf0af7d4"
 
     fingerprint.set_return_int()
     assert isinstance(fingerprint.of_text(a_text), integer_types)
