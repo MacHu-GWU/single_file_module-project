@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
+
 **中文文档**
 
 matplotmate提供了一套函数式的命令, 用于时间序列数据的简单绘图。适画用于在R&D中
@@ -199,7 +200,7 @@ def preprocess_x_y(x, y):
 
     预处理输入的x, y数据。
     """
-    if not isinstance(x, tuple):
+    if not isinstance(x, (tuple, list)):
         return (x,), (y,)
     else:
         return x, y
@@ -374,7 +375,7 @@ if __name__ == "__main__":
                      xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                      legend=["Stock 1", "Stock 2"]).show()
 
-    # test_plot_one_day()
+    test_plot_one_day()
 
     def test_plot_one_week():
         x = rolex.time_series(
@@ -429,4 +430,4 @@ if __name__ == "__main__":
                         xlabel="Time", ylabel1="Interests Value", ylabel2="Stock Value", title="Stock Trends",
                         legend=["Interests", "Stock"]).show()
 
-    # test_plot_two_scales()
+#     test_plot_two_scales()

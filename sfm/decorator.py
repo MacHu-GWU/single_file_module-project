@@ -9,12 +9,12 @@ from __future__ import print_function
 import time
 
 
-def text_of_func_args_and_kwargs(func, args, kwargs):
+def _text_of_func_args_and_kwargs(func, args, kwargs):
     """
 
     **中文文档**
 
-    一个函数的调用以及其参数的文本。
+    返回一个函数的调用以及其参数的文本形式。
     """
     text_args = ", ".join(["%r" % arg for arg in args])
     text_kwargs = ", ".join(["%s=%r" % (key, value)
@@ -31,7 +31,7 @@ def text_of_func_args_and_kwargs(func, args, kwargs):
         raise Exception
 
 
-def timer_wrapper(func):
+def elapsed_printer(func):
     """
 
     **中文文档**
@@ -39,7 +39,7 @@ def timer_wrapper(func):
     此包装器可以打印函数的输入参数, 以及运行时间。
     """
     def _wrapper(*args, **kwargs):
-        print("Execute: %s" % text_of_func_args_and_kwargs(func, args, kwargs))
+        print(">>> %s # Running ..." % _text_of_func_args_and_kwargs(func, args, kwargs))
         st = time.clock()
         res = func(*args, **kwargs)
         elapsed = time.clock() - st
@@ -50,23 +50,22 @@ def timer_wrapper(func):
 
 
 #--- Unittest ---
-import random
-
-
-@timer_wrapper
-def random_sorted_list(n):
-    """Return a random sorted list
-    """
-    l = [random.randint(1, 1000) for i in range(n)]
-    l.sort()
-    return l
-
-
-def test_random_sorted_list():
+def test_elapsed_printer():
+    import random
+    
+    @elapsed_printer
+    def random_sorted_list(n, lower, upper):
+        """Return a random sorted list
+        """
+        l = [random.randint(lower, upper) for i in range(n)]
+        l.sort()
+        return l
+    
     n = 1000
-    l = random_sorted_list(n)
-    print(l)
-
+    lower = 1
+    upper = 9999
+    l = random_sorted_list(n, lower=lower, upper=upper)
+    
 
 if __name__ == "__main__":
-    test_random_sorted_list()
+    test_elapsed_printer()
