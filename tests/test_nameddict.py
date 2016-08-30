@@ -41,6 +41,7 @@ def test_Base():
     assert person.items() == [("id", 1), ("name", "Jack")]
     assert list(person) == ["id", "name"]
 
+
 if __name__ == "__main__":
     import py
     import os

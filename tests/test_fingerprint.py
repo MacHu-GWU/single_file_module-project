@@ -26,17 +26,22 @@ def test_md5_file():
             
         with pytest.raises(ValueError) as exc_info:
             fingerprint.of_file(a_file, chunk_size=0)
-            
+
+
 def test_hash_anything():
     """This test may failed in different operation system.
     """
     a_bytes = bytes(123)
+    md5 = fingerprint.of_bytes(a_bytes)
+    print(md5)
+    
     a_text = "Hello World!"
+    md5 = fingerprint.of_bytes(a_bytes)
+    print(md5)
+    
     a_pyobj = {"key": "value"}
-
-    print(fingerprint.of_bytes(a_bytes))
-    print(fingerprint.of_text(a_text))
-    print(fingerprint.of_pyobj(a_pyobj))
+    md5 = fingerprint.of_pyobj(a_pyobj)
+    print(md5)
 
     fingerprint.set_return_int()
     assert isinstance(fingerprint.of_text(a_text), integer_types)

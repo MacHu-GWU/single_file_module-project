@@ -123,7 +123,7 @@ class GeoSearchEngine(object):
 
 
 #--- Unittest ---
-if __name__ == "__main__":
+def test_geo_search():
     point_data = [
         (1, 38.42522236, -93.29622264),
         (2, 40.22483194, -92.37676291),
@@ -151,5 +151,10 @@ if __name__ == "__main__":
         for dist, point in n_nearest:
             assert last_dist <= dist
             last_dist = dist
-        
+
     test_find_n_nearest()
+    
+    
+if __name__ == "__main__":
+    test_geo_search()
+    

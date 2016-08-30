@@ -7,7 +7,6 @@ With some built-in compiled pattern, we can use human language-like syntax to
 generate re pattern.
 """
 
-from __future__ import print_function, unicode_literals
 import re
 
 
@@ -64,25 +63,3 @@ def extract_number(text):
                 pass
 
     return result_new
-
-#--- Unittest ---
-
-
-def test_extract_by_prefix_surfix():
-    assert extract_by_prefix_surfix(
-        text="<div>Hello</div><div>World</div>",
-        prefix="<div>", surfix="</div>"
-    ) == ["Hello", "World"]
-
-
-def test_extract_number():
-    for i, j in zip(
-        extract_number(
-            "Price is $25.99, age is 18, quarter is .25, one is 1."),
-        [25.99, 18, 0.25, 1.0],
-    ):
-        assert abs(i - j) <= 0.0001
-
-if __name__ == "__main__":
-    test_extract_by_prefix_surfix()
-    test_extract_number()

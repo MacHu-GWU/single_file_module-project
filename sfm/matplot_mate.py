@@ -63,7 +63,9 @@ def format_x_tick(axis,
                   major_formatter=None,
                   minor_locator=None,
                   minor_formatter=None):
-    """
+    """Set x axis's format.
+    
+    This method is designed for time axis.
 
     **中文文档**
 
@@ -105,7 +107,7 @@ def set_title_xlabel_ylabel(axis, title, xlabel, ylabel):
         axis.set_ylabel("Value")
 
 
-def set_ylim(axis, y):
+def set_ylim(axis, y_min, y_max):
     """set min and max value of y axis
 
     :param y: multiple y axis tuple.
@@ -114,7 +116,6 @@ def set_ylim(axis, y):
 
     设置y坐标的最大最小值。
     """
-    y_min, y_max = get_yAxis_limit(np.array(y).flatten())
     axis.set_ylim([y_min, y_max])
 
 
@@ -174,10 +175,13 @@ def get_min(array):
 
 def get_yAxis_limit(y, lower=0.05, upper=0.2):
     """
-
+        
     **中文文档**
 
     计算y坐标轴的最小和最大坐标。
+    
+    :params lower: ymin为 y的最小值再减去gap的一定倍率
+    :params upper: ymax为 y的最大值再加上gap的一定倍率    
     """
     smallest = get_min(y)
     largest = get_max(y)
@@ -187,8 +191,13 @@ def get_yAxis_limit(y, lower=0.05, upper=0.2):
     return y_min, y_max
 
 
-def create_figure():
-    figure = plt.figure(figsize=(20, 10))
+def create_figure(width=20, height=10):
+    """Create a figure instance.
+    
+    :params width: figure width
+    :params height: figure height
+    """
+    figure = plt.figure(figsize=(width, height))
     axis = figure.add_subplot(1, 1, 1)
     return figure, axis
 
@@ -207,6 +216,7 @@ def preprocess_x_y(x, y):
 
 
 def plot_time_series(x, y,
+                     linewidth=1, linestyle="-",
                      xlabel=None, ylabel=None,
                      x_major_locattor=None, x_major_formatter=None,
                      x_minor_locattor=None, x_minor_formatter=None,
@@ -226,18 +236,30 @@ def plot_time_series(x, y,
 
     lines = list()
     for time, value in zip(x, y):
-        lines.append(axis.plot(time, value)[0])
+        lines.append(axis.plot(time, value, 
+                               lw=linewidth, ls=linestyle, c=next(cycol))[0])
 
     format_x_tick(axis,
                   x_major_locattor, x_major_formatter,
                   x_minor_locattor, x_minor_formatter,)
-    set_ylim(axis, y)
+    
+    y_min, y_max = get_yAxis_limit(
+        np.array(y).flatten(), 
+        lower=0.05, 
+        upper=0.1 * len(x),
+    )
+    set_ylim(axis, y_min, y_max)
+    
     set_title_xlabel_ylabel(axis, title, xlabel, ylabel)
+    
     set_legend(axis, lines, legend)
+    
     return plt
 
 
-def plot_one_day(x, y, xlabel=None, ylabel=None, title=None, legend=None):
+def plot_one_day(x, y, 
+                 linewidth=1, linestyle="-", 
+                 xlabel=None, ylabel=None, title=None, legend=None):
     """
     """
     (
@@ -246,14 +268,16 @@ def plot_one_day(x, y, xlabel=None, ylabel=None, title=None, legend=None):
         x_minor_locattor,
         x_minor_formatter,
     ) = one_day_formatter()
-    return plot_time_series(x, y, xlabel, ylabel,
+    return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
                             title, legend,
                             )
 
 
-def plot_one_week(x, y, xlabel=None, ylabel=None, title=None, legend=None):
+def plot_one_week(x, y, 
+                  linewidth=1, linestyle="-", 
+                  xlabel=None, ylabel=None, title=None, legend=None):
     """
     """
     (
@@ -262,14 +286,16 @@ def plot_one_week(x, y, xlabel=None, ylabel=None, title=None, legend=None):
         x_minor_locattor,
         x_minor_formatter,
     ) = one_week_formatter()
-    return plot_time_series(x, y, xlabel, ylabel,
+    return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
                             title, legend,
                             )
 
 
-def plot_one_month(x, y, xlabel=None, ylabel=None, title=None, legend=None):
+def plot_one_month(x, y, 
+                   linewidth=1, linestyle="-", 
+                   xlabel=None, ylabel=None, title=None, legend=None):
     """
     """
     (
@@ -278,14 +304,14 @@ def plot_one_month(x, y, xlabel=None, ylabel=None, title=None, legend=None):
         x_minor_locattor,
         x_minor_formatter,
     ) = one_month_formatter()
-    return plot_time_series(x, y, xlabel, ylabel,
+    return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
                             title, legend,
                             )
 
 
-def plot_one_quarter(x, y, xlabel=None, ylabel=None, title=None, legend=None):
+def plot_one_quarter(x, y, linewidth=1, linestyle="-", xlabel=None, ylabel=None, title=None, legend=None):
     """
     """
     (
@@ -294,14 +320,16 @@ def plot_one_quarter(x, y, xlabel=None, ylabel=None, title=None, legend=None):
         x_minor_locattor,
         x_minor_formatter,
     ) = one_quarter_formatter()
-    return plot_time_series(x, y, xlabel, ylabel,
+    return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
                             title, legend,
                             )
 
 
-def plot_one_year(x, y, xlabel=None, ylabel=None, title=None, legend=None):
+def plot_one_year(x, y, 
+                  linewidth=1, linestyle="-", 
+                  xlabel=None, ylabel=None, title=None, legend=None):
     """
     """
     (
@@ -310,16 +338,16 @@ def plot_one_year(x, y, xlabel=None, ylabel=None, title=None, legend=None):
         x_minor_locattor,
         x_minor_formatter,
     ) = one_year_formatter()
-    return plot_time_series(x, y, xlabel, ylabel,
+    return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
                             title, legend,
                             )
 
 #--- Twin Axis ---
-
-
-def plot_two_scales(x1, y1, x2, y2, xlabel=None, ylabel1=None, ylabel2=None,
+def plot_two_scales(x1, y1, x2, y2, 
+                    linewidth=1, linestyle="-",
+                    xlabel=None, ylabel1=None, ylabel2=None,
                     x_major_locattor=None, x_major_formatter=None,
                     x_minor_locattor=None, x_minor_formatter=None,
                     title=None, legend=None):
@@ -338,20 +366,39 @@ def plot_two_scales(x1, y1, x2, y2, xlabel=None, ylabel1=None, ylabel2=None,
 
     lines = list()
     for time, value in zip(x1, y1):
-        lines.append(axis1.plot(time, value, c=next(cycol))[0])
+        lines.append(axis1.plot(time, value, 
+                                lw=linewidth, ls=linestyle, c=next(cycol))[0])
 
     for time, value in zip(x2, y2):
-        lines.append(axis2.plot(time, value, c=next(cycol))[0])
+        lines.append(axis2.plot(time, value, 
+                                lw=linewidth, ls=linestyle, c=next(cycol))[0])
 
     format_x_tick(axis1,
                   x_major_locattor, x_major_formatter,
                   x_minor_locattor, x_minor_formatter,)
-    set_ylim(axis1, y1)
-    set_ylim(axis2, y2)
+    
+    y1_min, y1_max = get_yAxis_limit(
+        np.array(y1).flatten(), 
+        lower=0.05, 
+        upper=0.1 * len(y1),
+    )
+    set_ylim(axis1, y1_min, y1_max)
+    
+    y2_min, y2_max = get_yAxis_limit(
+        np.array(y2).flatten(), 
+        lower=0.05, 
+        upper=0.1 * len(y2),
+    )
+    set_ylim(axis2, y2_min, y2_max)
+    
     set_title_xlabel_ylabel(axis1, title, xlabel, ylabel1)
+    
     set_title_xlabel_ylabel(axis2, title, xlabel, ylabel2)
+    
     set_legend(axis1, lines, legend)
+    
     return plt
+
 
 #--- Unittest ---
 if __name__ == "__main__":
@@ -386,7 +433,7 @@ if __name__ == "__main__":
                       xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                       legend=["Stock 1", "Stock 2"]).show()
 
-    # test_plot_one_week()
+    test_plot_one_week()
 
     def test_plot_one_month():
         x = rolex.time_series(
@@ -397,7 +444,7 @@ if __name__ == "__main__":
                        xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                        legend=["Stock 1", "Stock 2"]).show()
 
-    # test_plot_one_month()
+    test_plot_one_month()
 
     def test_plot_one_quarter():
         x = rolex.time_series(
@@ -408,7 +455,7 @@ if __name__ == "__main__":
                          xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                          legend=["Stock 1", "Stock 2"]).show()
 
-    # test_plot_one_quarter()
+    test_plot_one_quarter()
 
     def test_plot_one_year():
         x = rolex.time_series(
@@ -419,15 +466,17 @@ if __name__ == "__main__":
                       xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                       legend=["Stock 1", "Stock 2"]).show()
 
-    # test_plot_one_year()
+    test_plot_one_year()
 
     def test_plot_two_scales():
         x = rolex.time_series(
             "2016-01-01 00:00:00", "2016-01-01 23:59:59", freq="10min")
-        y1 = np.random.random(len(x))
-        y2 = np.random.random(len(x)) * 10
-        plot_two_scales(x, y1, x, y2,
+        y11 = np.random.random(len(x))
+        y12 = np.random.random(len(x))
+        y21 = np.random.random(len(x)) * 10
+        y22 = np.random.random(len(x)) * 10
+        plot_two_scales((x, x), (y11, y12), (x, x), (y21, y22),
                         xlabel="Time", ylabel1="Interests Value", ylabel2="Stock Value", title="Stock Trends",
-                        legend=["Interests", "Stock"]).show()
+                        legend=["Interests1", "Interests2", "Stock1", "Stock2"]).show()
 
-#     test_plot_two_scales()
+    test_plot_two_scales()

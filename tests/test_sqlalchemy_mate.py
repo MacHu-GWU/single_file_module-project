@@ -30,8 +30,9 @@ def test_smart_insert():
     
     **中文文档**
     
-    测试smart_insert的基本功能和性能
+    测试smart_insert的基本功能, 以及与普通的insert比较性能。
     """
+    # Smart Insert
     engine.execute(t_test.delete())
 
     data = [{"id": random.randint(1, 10000)} for i in range(20)]
@@ -42,22 +43,15 @@ def test_smart_insert():
             pass
     assert 15 <= count_n_rows(engine, t_test) <= 20
 
-    data = [{"id": i} for i in range(1, 10001)]
+    data = [{"id": i} for i in range(1, 1 + 10000)]
+    
     st = time.clock()
     smart_insert(engine, t_test, data, 5)
-    elapse = time.clock() - st
+    elapse1 = time.clock() - st
+    
     assert count_n_rows(engine, t_test) == 10000
-
-    print("Smart insert elapse: %.6f." % elapse)
-
-
-def test_regular_insert():
-    """
     
-    **中文文档**
-    
-    测试普通insert与smart insert在复杂情况下相比的性能
-    """
+    # Regular Insert
     engine.execute(t_test.delete())
 
     data = [{"id": random.randint(1, 10000)} for i in range(20)]
@@ -68,17 +62,19 @@ def test_regular_insert():
             pass
     assert 15 <= count_n_rows(engine, t_test) <= 20
 
-    data = [{"id": i} for i in range(1, 10001)]
+    data = [{"id": i} for i in range(1, 1 + 10000)]
+    
     st = time.clock()
     for row in data:
         try:
             engine.execute(ins, row)
         except IntegrityError:
             pass
-    elapse = time.clock() - st
+    elapse2 = time.clock() - st
+    
     assert count_n_rows(engine, t_test) == 10000
 
-    print("Regular insert elapse: %.6f." % elapse)
+    assert elapse1 * 5 < elapse2
 
 
 if __name__ == "__main__":

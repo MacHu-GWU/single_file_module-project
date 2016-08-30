@@ -6,6 +6,7 @@ This module provides some easy function to generate random text from built-in
 templates.
 
 - :func:`rand_str`: fixed-length string
+- :func:`rand_hexstr`: fixed-length hex string
 - :func:`rand_pwd`: random password
 - :func:`rand_phone`: random phone number
 - :func:`rand_ssn`: random ssn
@@ -17,14 +18,16 @@ import string
 
 CHARSET_ALPHA_DIGITS = string.ascii_letters + string.digits
 CHARSET_PASSWORD = CHARSET_ALPHA_DIGITS + "!@#$%^&*()"
+CHARSET_HEXSTR_LOWER = "0123456789abcdef"
+CHARSET_HEXSTR_UPPER = CHARSET_HEXSTR_LOWER.upper()
 DOMAIN_SURFIX = ["com", "net", "org", "edu"]
 
 
 def rand_str(length, allowed=CHARSET_ALPHA_DIGITS):
     """Generate fixed-length random string from your allowed character pool.
 
-    :param length: total length of this string
-    :param allowed: allowed charset
+    :param length: total length of this string.
+    :param allowed: allowed charset.
 
     Example::
 
@@ -36,6 +39,18 @@ def rand_str(length, allowed=CHARSET_ALPHA_DIGITS):
     for _ in range(length):
         res.append(random.choice(allowed))
     return "".join(res)
+
+
+def rand_hexstr(length, lower=True):
+    """Gererate fixed-length random hexstring, usually for md5.
+
+    :param length: total length of this string.
+    :param lower: use lower case or upper case.
+    """
+    if lower:
+        return rand_str(length, allowed=CHARSET_HEXSTR_LOWER)
+    else:
+        return rand_str(length, allowed=CHARSET_HEXSTR_UPPER)
 
 
 def rand_pwd(length):
@@ -109,13 +124,3 @@ def rand_article(num_p=(4, 10), num_s=(2, 15), num_w=(5, 40)):
             p.append(" ".join(s))
         article.append(". ".join(p))
     return "\n\n".join(article)
-
-
-#--- Unittest ---
-if __name__ == "__main__":
-    print(rand_str(32))
-    print(rand_pwd(12))
-    print(rand_phone())
-    print(rand_ssn())
-    print(rand_email())
-    print(rand_article())

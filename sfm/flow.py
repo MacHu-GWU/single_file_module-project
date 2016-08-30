@@ -23,17 +23,3 @@ def try_ntime(max_try, func, *args, **kwargs):
         except Exception as e:
             current_exception = e
     raise current_exception
-
-
-#--- Unittest ---
-if __name__ == "__main__":
-    import random
-    
-    def bet_and_win():
-        value = random.randint(2, 12)
-        if value > 7:
-            print("%s point, You Win!" % value)
-        else:
-            raise Exception("%s point, You Lose!" % value)
-    
-    flow.try_ntime(10, bet_and_win)
