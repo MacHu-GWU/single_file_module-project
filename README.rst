@@ -9,7 +9,7 @@
 
 Welcome to sfm Documentation
 ===============================================================================
-Collection of useful single file module. Please install required package respectively by your self.
+Collection of useful single file module. Please install required package respectively when needed.
 
 
 **Quick Links**

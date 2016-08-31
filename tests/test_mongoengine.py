@@ -6,7 +6,7 @@ import mongoengine
 from sfm.mongoengine_mate import ExtendedDocument
 
 
-class User(ExtendedDocument, mongoengine.Document):
+class User(ExtendedDocument):
     id = mongoengine.IntField(primary_key=True)
     name = mongoengine.StringField()
     
@@ -36,17 +36,6 @@ def test_absorb():
     user1.absorb(user2)
     assert user1.id == 1
     assert user1.name == "Tom"
-        
-
-def test_exception():
-    class Item(ExtendedDocument): # missing mongoengine.Document
-        def __init__(self, id, name):
-            self.id = id
-            self.name = name
-
-    item = Item(id=1, name="egg")
-    with pytest.raises(TypeError):
-        item.to_dict()  # a type error will be raise
     
     
 if __name__ == "__main__":
