@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import pytest
 from sfm.nameddict import Base
 
 
@@ -43,6 +44,5 @@ def test_Base():
 
 
 if __name__ == "__main__":
-    import py
     import os
-    py.test.cmdline.main("%s --tb=native -s" % os.path.basename(__file__))
+    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+extend the power of pymongo.
+"""
+
 import math
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select, func
+import pymongo
 
 def grouper_list(l, n):
     """Evenly divide list into fixed-length piece, no filled value if chunk
@@ -38,7 +41,7 @@ def grouper_list(l, n):
         yield chunk
 
 
-def smart_insert(engine, table, data, minimal_size=5):
+def smart_insert(col, data, minimal_size=5):
     """An optimized Insert strategy.
 
     **中文文档**
@@ -54,14 +57,12 @@ def smart_insert(engine, table, data, minimal_size=5):
     该Insert策略在内存上需要额外的 sqrt(nbytes) 的开销, 跟原数据相比体积很小。
     但时间上是各种情况下平均最优的。
     """
-    insert = table.insert()
-
     if isinstance(data, list):
         # 首先进行尝试bulk insert
         try:
-            engine.execute(insert, data)
+            col.insert(data)
         # 失败了
-        except IntegrityError:
+        except pymongo.errors.DuplicateKeyError:
             # 分析数据量
             n = len(data)
             # 如果数据条数多于一定数量
@@ -69,48 +70,64 @@ def smart_insert(engine, table, data, minimal_size=5):
                 # 则进行分包
                 n_chunk = math.floor(math.sqrt(n))
                 for chunk in grouper_list(data, n_chunk):
-                    smart_insert(engine, table, chunk, minimal_size)
+                    smart_insert(col, chunk, minimal_size)
             # 否则则一条条地逐条插入
             else:
-                for row in data:
+                for doc in data:
                     try:
-                        engine.execute(insert, row)
-                    except IntegrityError:
+                        col.insert(doc)
+                    except pymongo.errors.DuplicateKeyError:
                         pass
     else:
         try:
-            engine.execute(insert, data)
-        except IntegrityError:
+            col.insert(data)
+        except pymongo.errors.DuplicateKeyError:
             pass
+        
 
-
-def count_row(engine, table):
-    """Return number of rows in a table.
+#--- Unittest ---
+def test_smart_insert():
+    def insert_test_data():
+        col.remove({})
+        
+        data = [{"_id": random.randint(1, 10000)} for i in range(20)]
+        for doc in data:
+            try:
+                col.insert(doc)
+            except:
+                pass
+        assert 15 <= col.find().count() <= 20
+    data = [{"_id": i} for i in range(1, 1 + 10000)]
+    # Smart Insert
+    insert_test_data()
     
-    **中文文档**
+    st = time.clock()
+    smart_insert(col, data)
+    elapse1 = time.clock() - st
     
-    返回一个表中的行数。
-    """
-    return engine.execute(table.count()).fetchone()[0]
-
-
-def select_all(engine, table):
-    """Select everything from a table.
+    assert col.find().count() == 10000 # after smart insert, we got 10000 doc
     
-    **中文文档**
+    # Regular Insert
+    insert_test_data()
+     
+    st = time.clock()
+    for doc in data:
+        try:
+            col.insert(doc)
+        except:
+            pass
+    elapse2 = time.clock() - st
+     
+    assert col.find().count() == 10000 # after regular insert, we got 10000 doc
+     
+    assert elapse1 <= elapse2
     
-    选取所有数据。
-    """
-    s = select([table])
-    return engine.execute(s)
-
-
-def select_column(engine, column):
-    """Select single column.
     
-    **中文文档**
+if __name__ == "__main__":
+    import time
+    import random
     
-    返回单列的数据。
-    """
-    s = select([column])
-    return [row[column.name] for row in engine.execute(s)]
+    client = pymongo.MongoClient()
+    db = client.get_database("test")
+    col = db.get_collection("test")
+    test_smart_insert()

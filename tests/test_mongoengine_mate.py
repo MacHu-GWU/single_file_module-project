@@ -30,15 +30,16 @@ def test_to_tuple_list_dict_OrderedDict_json():
     assert user.to_json() == '{"_id": 1, "name": "Jack"}'
     
 
-def test_absorb():
-    user1 = User(id=1, name="Jack")
-    user2 = User(name="Tom")
-    user1.absorb(user2)
-    assert user1.id == 1
-    assert user1.name == "Tom"
+def test_absorb_and_revise():
+    user = User(id=1, name="Jack")
+    user.absorb(User(name="Tom"))
+    assert user.name == "Tom"
+
+    user_data = {"name": "Mike"}
+    user.revise(user_data)
+    assert user.name == "Mike"
     
     
 if __name__ == "__main__":
-    import py
     import os
-    py.test.cmdline.main("%s --tb=native -s" % os.path.basename(__file__))
+    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

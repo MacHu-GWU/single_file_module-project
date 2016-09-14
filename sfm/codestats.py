@@ -24,43 +24,51 @@ import re
 import os
 from os.path import join, splitext, getsize
 from dataIO import js
+from filetool.files import WinFile, FileCollection
+
 
 class Stats(object):
+
     def __init__(self, **kwargs):
         for attr, value in kwargs.items():
             object.__setattr__(self, attr, value)
 
+
 class Filter(object):
+
     @staticmethod
     def filter(abspath):
         raise NotImplementedError
-    
+
+
 class FilterPython(Filter):
     __label__ = "Python"
-    
+
     @staticmethod
     def filter(abspath):
         if splitext(abspath)[1].lower() == ".py":
             return True
         else:
-            return False 
+            return False
+
 
 def find_files(dir_path, filters):
     """
-    
+
     :param dir_path:
     :param filters:
     """
     result = {f.__label__: [] for f in filters}
-    
+
     for current_dir, dirname_list, basename_list in os.walk(dir_path):
         for basename in basename_list:
             abspath = join(dirname, basename)
             for f in filters:
                 if f.filter(abspath):
                     result[f.__label__].append(abspath)
-    
+
     return result
+
 
 def arg_preprocess(arg):
     if isinstance(arg, list):
@@ -69,8 +77,8 @@ def arg_preprocess(arg):
         return [arg, ]
 
 
-
 class CodeStats(object):
+
     """A simple Python project code, comment, docstr line counter.
 
     Code stats analyzer should be initiated with the project workspace path and
@@ -225,15 +233,15 @@ class CodeStats(object):
 
 
 # #--- Unittest ---
-# if __name__ == "__main__":
-#     import site
-# 
-#     workspace = os.path.join(site.getsitepackages()[1], "angora")
-# 
-#     analyzer = CodeStats(workspace)
-# 
-#     analyzer.forPython()
-#     analyzer.run()
-# 
-#     analyzer.forText()
-#     analyzer.run()
+if __name__ == "__main__":
+    import os
+
+    workspace = os.path.dirname(__file__) 
+
+    analyzer = CodeStats(workspace)
+
+    analyzer.forPython()
+    analyzer.run()
+
+    analyzer.forText()
+    analyzer.run()

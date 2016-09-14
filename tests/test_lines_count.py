@@ -2,17 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from sfm.rnd import *
+from sfm import lines_count
 
 
-def test_rnd():
-    rand_str(32)
-    rand_hexstr(12)
-    rand_pwd(12)
-    rand_phone()
-    rand_ssn()
-    rand_email()
-    rand_article()
+def test_lines_count():
+    assert lines_count.count_lines(__file__) == 14
 
 
 if __name__ == "__main__":

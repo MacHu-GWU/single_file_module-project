@@ -112,7 +112,26 @@ class ExtendedDocument(mongoengine.Document):
         for attr, value in other.items():
             if value is not None:
                 setattr(self, attr, value)
+                
+    def revise(self, data):
+        """Revise attributes value with dictionary data.
+        """
+        for key, value in data.items():
+            if value is not None:
+                setattr(self, key, value)
     
+    @classmethod
+    def collection(cls):
+        """Get pymongo Collection instance.
+        """
+        return cls._get_collection()
+    
+    @classmethod
+    def col(cls):
+        """Get pymongo Collection instance.
+        """
+        return cls._get_collection()
+            
     @classmethod
     def smart_insert(cls, data, minimal_size=5):
         """An optimized Insert strategy.
@@ -159,18 +178,22 @@ class ExtendedDocument(mongoengine.Document):
 
 
 #--- Unittest ---
-def test_smart_insert():
-    import time
-    import random
+class User(ExtendedDocument):
+    id = mongoengine.IntField(primary_key=True)
+    name = mongoengine.StringField()
+
+    meta = {"collection": "user"}
+        
+
+if __name__ == "__main__":
     import mongoengine
     
     mongoengine.connect()
-    
-    class User(ExtendedDocument):
-        id = mongoengine.IntField(primary_key=True)
-        name = mongoengine.StringField()
 
-        meta = {"collection": "user"}
+        
+def test_smart_insert():
+    import time
+    import random
     
     # Smart Insert
     User.objects.delete()
@@ -185,7 +208,7 @@ def test_smart_insert():
     User.smart_insert(users)
     elapse1 = time.clock() - st
     
-    assert User.objects.count() == 10000
+    assert User.objects.count() == 10000 # after smart insert, we got 10000 doc
 
     # Regular Insert
     User.objects.delete()
@@ -204,12 +227,11 @@ def test_smart_insert():
             pass
     elapse2 = time.clock() - st
     
-    assert User.objects.count() == 10000
+    assert User.objects.count() == 10000 # after regular insert, we got 10000 doc
     
     assert elapse1 <= elapse2
     
     
 if __name__ == "__main__":
-    """
-    """
+    #
     test_smart_insert()

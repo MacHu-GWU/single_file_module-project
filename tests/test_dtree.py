@@ -130,6 +130,5 @@ def rand_str(length):
 
 
 if __name__ == "__main__":
-    import py
     import os
-    py.test.cmdline.main("%s --tb=native -s" % os.path.basename(__file__))
+    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

@@ -22,23 +22,3 @@ def declare_base(erroName=True):
                 else:
                     return "%s" % self.default
     return Base
-
-
-def test_default_exception():
-    class DataError(declare_base(erroName=True)):
-        default = "This is DEFAULT message"
-        
-    try:
-        raise DataError
-    except Exception as e:
-        assert str(e) == "DataError: This is DEFAULT message"
-         
-    try:
-        raise DataError("This is CUSTOMIZE message")
-    except Exception as e:
-        assert str(e) == "DataError: This is CUSTOMIZE message"
-        
-
-#--- Unittest ---
-if __name__ == "__main__":
-    test_default_exception()

@@ -86,7 +86,7 @@ def format_x_tick(axis,
     axis.grid()
 
 
-def set_title_xlabel_ylabel(axis, title, xlabel, ylabel):
+def set_title_xlabel_ylabel(axis, title, xlabel=None, ylabel=None):
     """
 
     **中文文档**
@@ -108,9 +108,7 @@ def set_title_xlabel_ylabel(axis, title, xlabel, ylabel):
 
 
 def set_ylim(axis, y_min, y_max):
-    """set min and max value of y axis
-
-    :param y: multiple y axis tuple.
+    """set min and max value of y axis.
 
     **中文文档**
 
@@ -134,7 +132,7 @@ def set_legend(axis, lines, legend):
 
 
 def get_max(array):
-    """Get maximum value.
+    """Get maximum value of an array. Automatically ignore invalid data.
 
     **中文文档**
 
@@ -154,7 +152,7 @@ def get_max(array):
 
 
 def get_min(array):
-    """Get minimum value.
+    """Get minimum value of an array. Automatically ignore invalid data.
 
     **中文文档**
 
@@ -174,7 +172,8 @@ def get_min(array):
 
 
 def get_yAxis_limit(y, lower=0.05, upper=0.2):
-    """
+    """Find optimal y_min and y_max that guarantee enough space for legend and 
+    plot.
         
     **中文文档**
 
@@ -186,8 +185,12 @@ def get_yAxis_limit(y, lower=0.05, upper=0.2):
     smallest = get_min(y)
     largest = get_max(y)
     gap = largest - smallest
-    y_min = smallest - lower * gap
-    y_max = largest + upper * gap
+    if gap >= 0.000001:
+        y_min = smallest - lower * gap
+        y_max = largest + upper * gap
+    else:
+        y_min = smallest - lower * abs(smallest)
+        y_max = largest + upper * abs(largest)
     return y_min, y_max
 
 
@@ -203,16 +206,25 @@ def create_figure(width=20, height=10):
 
 
 def preprocess_x_y(x, y):
-    """Preprocess x, y input data.
+    """Preprocess x, y input data. Returns list of list style.
 
     **中文文档**
 
     预处理输入的x, y数据。
     """
-    if not isinstance(x, (tuple, list)):
-        return (x,), (y,)
+    def is_iterable_slicable(a):
+        if hasattr(a, "__iter__") and hasattr(a, "__getitem__"):
+            return True
+        else:
+            return False
+        
+    if is_iterable_slicable(x):
+        if is_iterable_slicable(x[0]):
+            return x, y
+        else:
+            return (x,), (y,)
     else:
-        return x, y
+        raise ValueError("invalid input!")
 
 
 def plot_time_series(x, y,
@@ -230,7 +242,7 @@ def plot_time_series(x, y,
     为时间序列数据画图。
     """
     x, y = preprocess_x_y(x, y)
-
+    
     plt.close("all")
     figure, axis = create_figure()
 
@@ -402,16 +414,44 @@ def plot_two_scales(x1, y1, x2, y2,
 
 #--- Unittest ---
 if __name__ == "__main__":
-    import pytest
+    from pytest import raises, approx
     from rolex import rolex
 
-    def test_get_max():
+    def test_get_max_get_min():
         assert get_max(np.array([0, 1, 2])) == 2
         assert get_max(np.array([None, 1, 2])) == 2
-        with pytest.raises(ValueError):
+        with raises(ValueError):
             get_max(np.array([None, None, None]))
 
-    test_get_max()
+        assert get_min(np.array([0, 1, 2])) == 0
+        assert get_min(np.array([None, 1, 2])) == 1
+        with raises(ValueError):
+            get_min(np.array([None, None, None]))
+            
+    test_get_max_get_min()
+    
+    def test_get_yAxis_limit():
+        assert get_yAxis_limit([0, 1], lower=0.05, upper=0.2) \
+            == approx([-0.05, 1.2])
+        
+    test_get_yAxis_limit()
+
+    def test_preprocess_x_y():
+        l = [1, 2, 3]
+        t = (1, 2, 3)
+        x, y = preprocess_x_y(l, l)
+        assert x == (l, )
+        
+        x, y = preprocess_x_y(t, t)
+        assert x == (t, )
+        
+        x, y = preprocess_x_y([t, t], [t, t])
+        assert x == [t, t]
+        
+        x, y = preprocess_x_y((t, t), (t, t))
+        assert x == (t, t)
+        
+    test_preprocess_x_y()
 
     def test_plot_one_day():
         x = rolex.time_series(
@@ -433,7 +473,7 @@ if __name__ == "__main__":
                       xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                       legend=["Stock 1", "Stock 2"]).show()
 
-    test_plot_one_week()
+#     test_plot_one_week()
 
     def test_plot_one_month():
         x = rolex.time_series(
@@ -444,7 +484,7 @@ if __name__ == "__main__":
                        xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                        legend=["Stock 1", "Stock 2"]).show()
 
-    test_plot_one_month()
+#     test_plot_one_month()
 
     def test_plot_one_quarter():
         x = rolex.time_series(
@@ -455,7 +495,7 @@ if __name__ == "__main__":
                          xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                          legend=["Stock 1", "Stock 2"]).show()
 
-    test_plot_one_quarter()
+#     test_plot_one_quarter()
 
     def test_plot_one_year():
         x = rolex.time_series(
@@ -466,7 +506,7 @@ if __name__ == "__main__":
                       xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                       legend=["Stock 1", "Stock 2"]).show()
 
-    test_plot_one_year()
+#     test_plot_one_year()
 
     def test_plot_two_scales():
         x = rolex.time_series(
@@ -479,4 +519,4 @@ if __name__ == "__main__":
                         xlabel="Time", ylabel1="Interests Value", ylabel2="Stock Value", title="Stock Trends",
                         legend=["Interests1", "Interests2", "Stock1", "Stock2"]).show()
 
-    test_plot_two_scales()
+#     test_plot_two_scales()

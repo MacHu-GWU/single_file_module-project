@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import pytest
 from sfm import binarysearch as bs
 
@@ -31,7 +32,7 @@ def test_find_nearest():
     assert bs.find_nearest(sorted_list, 4.5) == 4
     assert bs.find_nearest(sorted_list, 4.6) == 5
 
+
 if __name__ == "__main__":
-    import py
     import os
-    py.test.cmdline.main("%s --tb=native -s" % os.path.basename(__file__))
+    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 from filetool.files import FileCollection
 
 
-def python_script(winfile):
+def filter_python_script(winfile):
     if winfile.ext == ".py":
         return True
     else:
         return False
 
 
-def pure_text(winfile):
+def filter_pure_text(winfile):
     ext = [".txt", ".rst", ".md"]
     if winfile.ext in ext:
         return True
@@ -41,4 +42,4 @@ def lines_stats(dir_path, file_filter):
 
 if __name__ == "__main__":
     import os
-    lines_stats(os.path.dirname(__file__), python_script)
+    lines_stats(os.path.dirname(__file__), filter_python_script)

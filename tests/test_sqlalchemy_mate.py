@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#--- Unittest ---
+import pytest
 import time
 import random
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import create_engine, MetaData, Table, Column
-from sqlalchemy import Integer
+from sqlalchemy import Integer, String
 from sfm.sqlalchemy_mate import smart_insert
+from sfm import sqlalchemy_mate as sm
 
 
 def count_n_rows(engine, table):
@@ -21,6 +22,10 @@ metadata = MetaData()
 t_test = Table("test", metadata,
                Column("id", Integer, primary_key=True),
                )
+t_item = Table("item", metadata,
+    Column("store_id", Integer, primary_key=True),
+    Column("item_id", Integer, primary_key=True),
+)
 metadata.create_all(engine)
 ins = t_test.insert()
 
@@ -77,7 +82,19 @@ def test_smart_insert():
     assert elapse1 * 5 < elapse2
 
 
+def test_count_row():
+    engine.execute(t_test.delete())
+    engine.execute(t_test.insert(), [{"id": 1}, {"id": 2}, {"id": 3}])
+    assert sm.count_row(engine, t_test) == 3
+    
+    
+def test_select_column():
+    engine.execute(t_test.delete())
+    engine.execute(t_test.insert(), [{"id": 1}, {"id": 2}, {"id": 3}])
+    id_list = sm.select_column(engine, t_test.c.id)
+    assert id_list == [1, 2, 3]
+        
+
 if __name__ == "__main__":
-    import py
     import os
-    py.test.cmdline.main("%s --tb=native -s" % os.path.basename(__file__))
+    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
