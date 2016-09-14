@@ -131,7 +131,6 @@ def test_size_of_generator():
     elapse2 = time.clock() - st
 
     assert n1 == n2 == 1000 * 1000
-    assert elapse1 > elapse2
 
 
 def test_running_window():
