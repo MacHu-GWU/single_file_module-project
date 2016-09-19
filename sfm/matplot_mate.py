@@ -255,10 +255,15 @@ def plot_time_series(x, y,
                   x_major_locattor, x_major_formatter,
                   x_minor_locattor, x_minor_formatter,)
     
+    if legend:
+        margin = len(x)
+    else:
+        margin = 1
+
     y_min, y_max = get_yAxis_limit(
         np.array(y).flatten(), 
         lower=0.05, 
-        upper=0.1 * len(x),
+        upper=0.1 * margin,
     )
     set_ylim(axis, y_min, y_max)
     
@@ -460,7 +465,8 @@ if __name__ == "__main__":
         y2 = np.random.random(len(x))
         plot_one_day((x, x), (y1, y2),
                      xlabel="Time", ylabel="Stock Value", title="Stock Trends",
-                     legend=["Stock 1", "Stock 2"]).show()
+                     legend=["Stock 1", "Stock 2"]
+                     ).show()
 
     test_plot_one_day()
 
