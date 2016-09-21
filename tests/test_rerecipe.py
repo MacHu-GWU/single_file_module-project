@@ -6,10 +6,18 @@ from sfm import rerecipe
 
 
 def test_extract_by_prefix_surfix():
+    text="<div>Hello</div><div>World</div>"
+    
     assert rerecipe.extract_by_prefix_surfix(
-        text="<div>Hello</div><div>World</div>",
-        prefix="<div>", surfix="</div>"
+        text=text,
+        prefix="<div>", surfix="</div>",
     ) == ["Hello", "World"]
+    
+    assert rerecipe.extract_by_prefix_surfix(
+        text=text,
+        prefix="<div>", surfix="</div>",
+        include=True,
+    ) == ["<div>Hello</div>", "<div>World</div>"]
 
 
 def test_extract_number():
@@ -19,6 +27,19 @@ def test_extract_number():
         [25.99, 18, 0.25, 1.0],
     ):
         assert abs(i - j) <= 0.0001
+
+
+def test_extract_email():
+    text = '<a href="jobs@gmail.com">My Gmail</a>'
+    assert rerecipe.extract_email(text) == ['jobs@gmail.com']
+    
+
+def test_extract_web_url():
+    text = '<a href="https://www.google.com">Google</a>'
+    assert rerecipe.extract_web_url(text) == ['https://www.google.com']
+
+    text = '<img="https://www.google.com/logo.png">'
+    assert rerecipe.extract_web_url(text) == ['https://www.google.com/logo.png']
 
 
 if __name__ == "__main__":

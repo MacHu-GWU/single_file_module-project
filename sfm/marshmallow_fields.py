@@ -17,7 +17,22 @@ class AllowNoneField(fields.Field):
         super(AllowNoneField, self).__init__(*args, **kwargs)
 
 
-class NonEmptyStringField(AllowNoneField):
+class AutoConvertField(AllowNoneField):
+    """
+    
+    **中文文档**
+    
+    在load和dump之前都自动调用covert函数进行数据预处理。常用于int, float或
+    string这一类原生类。
+    """
+    def _serialize(self, value, attr, obj):
+        return self.convert(value)
+    
+    def _deserialize(self, value, attr, data):
+        return self.convert(value)
+    
+
+class NonEmptyStringField(AutoConvertField):
     """
     
     **中文文档**
@@ -36,15 +51,9 @@ class NonEmptyStringField(AllowNoneField):
                 return None
         else:
             raise ValidationError("Not a string type.")
-             
-    def _serialize(self, value, attr, obj):
-        return self.convert(value)
-    
-    def _deserialize(self, value, attr, data):
-        return self.convert(value)
 
 
-class TitleStringField(AllowNoneField):
+class TitleStringField(AutoConvertField):
     """
     
     **中文文档**
@@ -73,9 +82,47 @@ class TitleStringField(AllowNoneField):
                 return None
         else:
             raise ValidationError("Not a string type")
-             
-    def _serialize(self, value, attr, obj):
-        return self.convert(value)
+        
+        
+class LowerStringField(AutoConvertField):
+    """
     
-    def _deserialize(self, value, attr, data):
-        return self.convert(value)
+    **中文文档**
+    
+    - 前后没有空格
+    - 全部小写
+    """
+    def convert(self, value):
+        if value is None:
+            return None
+        
+        if isinstance(value, string_types):
+            value = value.strip().lower()
+            if value:
+                return value
+            else:
+                return None
+        else:
+            raise ValidationError("Not a string type")
+        
+
+class UpperStringField(AutoConvertField):
+    """
+    
+    **中文文档**
+    
+    - 前后没有空格
+    - 全部小写
+    """
+    def convert(self, value):
+        if value is None:
+            return None
+        
+        if isinstance(value, string_types):
+            value = value.strip().upper()
+            if value:
+                return value
+            else:
+                return None
+        else:
+            raise ValidationError("Not a string type")
