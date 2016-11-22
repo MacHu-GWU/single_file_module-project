@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+This module provides more ``marshmallow.fields.Fields``.
+"""
+
 from six import string_types
 from marshmallow import fields, ValidationError
 
 
 class AllowNoneField(fields.Field):
-    """
+    """This field always allow None.
     
     **中文文档**
     
@@ -18,7 +22,7 @@ class AllowNoneField(fields.Field):
 
 
 class AutoConvertField(AllowNoneField):
-    """
+    """This field always call ``self.convert`` method before load and dump.
     
     **中文文档**
     
@@ -33,7 +37,7 @@ class AutoConvertField(AllowNoneField):
     
 
 class NonEmptyStringField(AutoConvertField):
-    """
+    """A non empty string field.
     
     **中文文档**
     
@@ -54,7 +58,7 @@ class NonEmptyStringField(AutoConvertField):
 
 
 class TitleStringField(AutoConvertField):
-    """
+    """Titlized string.
     
     **中文文档**
     
@@ -85,7 +89,7 @@ class TitleStringField(AutoConvertField):
         
         
 class LowerStringField(AutoConvertField):
-    """
+    """Lowercased string.
     
     **中文文档**
     
@@ -107,7 +111,7 @@ class LowerStringField(AutoConvertField):
         
 
 class UpperStringField(AutoConvertField):
-    """
+    """Uppercased string.
     
     **中文文档**
     

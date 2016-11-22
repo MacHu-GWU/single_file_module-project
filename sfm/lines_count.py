@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-from filetool.files import FileCollection
+from pathlib_mate import Path
 
 
-def filter_python_script(winfile):
-    if winfile.ext == ".py":
+def filter_python_script(path):
+    if path.ext == ".py":
         return True
     else:
         return False
 
 
-def filter_pure_text(winfile):
+def filter_pure_text(path):
     ext = [".txt", ".rst", ".md"]
-    if winfile.ext in ext:
+    if path.ext in ext:
         return True
     else:
         return False
@@ -32,14 +31,15 @@ def count_lines(abspath):
 
 
 def lines_stats(dir_path, file_filter):
+    """Lines count of selected files under a directory.
+    
+    :return n_files: number of files
+    :return n_lines: number of lines
+    """
     n_files = 0
     n_lines = 0
-    for abspath in FileCollection.from_path_by_criterion(dir_path, file_filter):
+    for p in Path(dir_path).select_file(file_filter):
         n_files += 1
-        n_lines += count_lines(abspath)
-    print("files: %s, lines: %s" % (n_files, n_lines))
-
-
-if __name__ == "__main__":
-    import os
-    lines_stats(os.path.dirname(__file__), filter_python_script)
+        n_lines += count_lines(p.abspath)
+    return n_files, n_lines
+    

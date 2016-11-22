@@ -95,6 +95,23 @@ def test_select_column():
     assert id_list == [1, 2, 3]
         
 
+def test_select_distinct_column():
+    engine.execute(t_test.delete())
+    engine.execute(t_test.insert(), [{"id": 1}, {"id": 2}, {"id": 3}])
+    
+    engine.execute(t_item.delete())
+    engine.execute(t_item.insert(), [{"store_id": 1, "item_id": 1},
+                                     {"store_id": 1, "item_id": 2},
+                                     {"store_id": 2, "item_id": 1},
+                                     {"store_id": 2, "item_id": 2}])
+    
+    assert sm.select_distinct_column(engine, t_test.c.id) == [1, 2, 3]
+    
+    assert sm.select_distinct_column(
+        engine, t_item.c.store_id, t_item.c.item_id) == [
+            [1, 1], [1, 2], [2, 1], [2, 2]]
+        
+        
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

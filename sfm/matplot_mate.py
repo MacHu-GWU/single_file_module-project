@@ -17,7 +17,7 @@ from matplotlib.dates import DateFormatter
 from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
 from itertools import cycle
 
-cycol = cycle("brgcmyk")
+CYCOl = cycle("brgcmyk")
 
 
 def one_day_formatter():
@@ -232,7 +232,7 @@ def plot_time_series(x, y,
                      xlabel=None, ylabel=None,
                      x_major_locattor=None, x_major_formatter=None,
                      x_minor_locattor=None, x_minor_formatter=None,
-                     title=None, legend=None):
+                     title=None, legend=None, cycol=None):
     """
     :param x: time array or tuple
     :param y: time array or tuple
@@ -242,7 +242,8 @@ def plot_time_series(x, y,
     为时间序列数据画图。
     """
     x, y = preprocess_x_y(x, y)
-    
+    if cycol is None:
+        cycol = cycle("brgcmyk")
     plt.close("all")
     figure, axis = create_figure()
 
@@ -255,15 +256,10 @@ def plot_time_series(x, y,
                   x_major_locattor, x_major_formatter,
                   x_minor_locattor, x_minor_formatter,)
     
-    if legend:
-        margin = len(x)
-    else:
-        margin = 1
-
     y_min, y_max = get_yAxis_limit(
         np.array(y).flatten(), 
         lower=0.05, 
-        upper=0.1 * margin,
+        upper=0.1 * len(x),
     )
     set_ylim(axis, y_min, y_max)
     
@@ -276,7 +272,7 @@ def plot_time_series(x, y,
 
 def plot_one_day(x, y, 
                  linewidth=1, linestyle="-", 
-                 xlabel=None, ylabel=None, title=None, legend=None):
+                 xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
     (
@@ -288,13 +284,13 @@ def plot_one_day(x, y,
     return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
-                            title, legend,
+                            title, legend, cycol,
                             )
 
 
 def plot_one_week(x, y, 
                   linewidth=1, linestyle="-", 
-                  xlabel=None, ylabel=None, title=None, legend=None):
+                  xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
     (
@@ -306,13 +302,13 @@ def plot_one_week(x, y,
     return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
-                            title, legend,
+                            title, legend, cycol,
                             )
 
 
 def plot_one_month(x, y, 
                    linewidth=1, linestyle="-", 
-                   xlabel=None, ylabel=None, title=None, legend=None):
+                   xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
     (
@@ -324,11 +320,13 @@ def plot_one_month(x, y,
     return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
-                            title, legend,
+                            title, legend, cycol,
                             )
 
 
-def plot_one_quarter(x, y, linewidth=1, linestyle="-", xlabel=None, ylabel=None, title=None, legend=None):
+def plot_one_quarter(x, y, 
+                     linewidth=1, linestyle="-", 
+                     xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
     (
@@ -340,13 +338,13 @@ def plot_one_quarter(x, y, linewidth=1, linestyle="-", xlabel=None, ylabel=None,
     return plot_time_series(x, y, linewidth, linestyle, xlabel, ylabel,
                             x_major_locattor, x_major_formatter,
                             x_minor_locattor, x_minor_formatter,
-                            title, legend,
+                            title, legend, cycol,
                             )
 
 
 def plot_one_year(x, y, 
                   linewidth=1, linestyle="-", 
-                  xlabel=None, ylabel=None, title=None, legend=None):
+                  xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
     (
@@ -367,7 +365,7 @@ def plot_two_scales(x1, y1, x2, y2,
                     xlabel=None, ylabel1=None, ylabel2=None,
                     x_major_locattor=None, x_major_formatter=None,
                     x_minor_locattor=None, x_minor_formatter=None,
-                    title=None, legend=None):
+                    title=None, legend=None, cycol=None):
     """
     
     **中文文档**
@@ -376,7 +374,11 @@ def plot_two_scales(x1, y1, x2, y2,
     """
     x1, y1 = preprocess_x_y(x1, y1)
     x2, y2 = preprocess_x_y(x2, y2)
-
+    
+    
+    if cycol is None:
+        cycol = cycle("brgcmyk")
+        
     plt.close("all")
     figure, axis1 = create_figure()
     axis2 = axis1.twinx()
@@ -465,8 +467,7 @@ if __name__ == "__main__":
         y2 = np.random.random(len(x))
         plot_one_day((x, x), (y1, y2),
                      xlabel="Time", ylabel="Stock Value", title="Stock Trends",
-                     legend=["Stock 1", "Stock 2"]
-                     ).show()
+                     legend=["Stock 1", "Stock 2"]).show()
 
     test_plot_one_day()
 
@@ -479,7 +480,7 @@ if __name__ == "__main__":
                       xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                       legend=["Stock 1", "Stock 2"]).show()
 
-#     test_plot_one_week()
+    test_plot_one_week()
 
     def test_plot_one_month():
         x = rolex.time_series(
@@ -490,7 +491,7 @@ if __name__ == "__main__":
                        xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                        legend=["Stock 1", "Stock 2"]).show()
 
-#     test_plot_one_month()
+    test_plot_one_month()
 
     def test_plot_one_quarter():
         x = rolex.time_series(
@@ -501,7 +502,7 @@ if __name__ == "__main__":
                          xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                          legend=["Stock 1", "Stock 2"]).show()
 
-#     test_plot_one_quarter()
+    test_plot_one_quarter()
 
     def test_plot_one_year():
         x = rolex.time_series(
@@ -512,7 +513,7 @@ if __name__ == "__main__":
                       xlabel="Time", ylabel="Stock Value", title="Stock Trends",
                       legend=["Stock 1", "Stock 2"]).show()
 
-#     test_plot_one_year()
+    test_plot_one_year()
 
     def test_plot_two_scales():
         x = rolex.time_series(
@@ -525,4 +526,4 @@ if __name__ == "__main__":
                         xlabel="Time", ylabel1="Interests Value", ylabel2="Stock Value", title="Stock Trends",
                         legend=["Interests1", "Interests2", "Stock1", "Stock2"]).show()
 
-#     test_plot_two_scales()
+    test_plot_two_scales()

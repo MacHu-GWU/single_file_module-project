@@ -24,9 +24,11 @@ class Base(object):
     :meth:`~Base.to_list()`, :meth:`~Base.to_dict()`, :meth:`~Base.to_OrderedDict()`,
     :meth:`~Base.to_json()`, 方法中要被包括的属性。
     """
-    
+    __reserved__ = set(["keys", "values", "items"])
     def __init__(self, **kwargs):
         for attr, value in kwargs.items():
+            if attr in self.__reserved__:
+                raise ValueError("%r is a reserved attribute name!" % attr)
             object.__setattr__(self, attr, value)
 
     def __repr__(self):

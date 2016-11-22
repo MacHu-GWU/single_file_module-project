@@ -3,7 +3,8 @@
 
 import math
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select, func
+from sqlalchemy import select, func, distinct
+
 
 def grouper_list(l, n):
     """Evenly divide list into fixed-length piece, no filled value if chunk
@@ -114,3 +115,17 @@ def select_column(engine, column):
     """
     s = select([column])
     return [row[column.name] for row in engine.execute(s)]
+
+
+def select_distinct_column(engine, *columns):
+    """Select distinct column(columns).
+    
+    **中文文档**
+    
+    distinct语句的语法糖函数。
+    """
+    s = select(columns).distinct()
+    if len(columns) == 1:
+        return [row[columns[0].name] for row in engine.execute(s)]
+    else:
+        return [[row[column.name] for column in columns] for row in engine.execute(s)]

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+from pytest import raises
 from sfm.nameddict import Base
 
 
@@ -43,6 +44,24 @@ def test_Base():
     assert list(person) == ["id", "name"]
 
 
+def test_reserved_attribute_name():
+    class User(Base):
+        def __init__(self, keys, values):
+            self.keys = keys
+            self.values = values
+            
+    user = User(keys="keys", values=1)
+    user.items()
+    with raises(Exception):
+        user.keys()
+        
+    class User(Base):
+        pass
+    
+    with raises(ValueError):
+        user = User(keys=1, values=2)
+        
+    
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
