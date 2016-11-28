@@ -10,7 +10,7 @@ install:
   - pip install pymongo
   - pip install mongoengine
   - pip install marshmallow
-  - pip install pathlib==0.0.4
+  - pip install pathlib_mate == 0.0.4
   - pip install . # Install it self
   - pip install --upgrade pytest
 script: py.test
