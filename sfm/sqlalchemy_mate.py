@@ -2,8 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import math
+from collections import OrderedDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select, func, distinct
+
+try:
+    import pandas as pd
+except:
+    pass
 
 
 def grouper_list(l, n):
@@ -87,9 +93,9 @@ def smart_insert(engine, table, data, minimal_size=5):
 
 def count_row(engine, table):
     """Return number of rows in a table.
-    
+
     **中文文档**
-    
+
     返回一个表中的行数。
     """
     return engine.execute(table.count()).fetchone()[0]
@@ -97,35 +103,52 @@ def count_row(engine, table):
 
 def select_all(engine, table):
     """Select everything from a table.
-    
+
     **中文文档**
-    
+
     选取所有数据。
     """
     s = select([table])
     return engine.execute(s)
 
 
-def select_column(engine, column):
+def select_column(engine, *columns):
     """Select single column.
     
-    **中文文档**
+    :returns headers: headers
+    :return data: list of row
     
-    返回单列的数据。
+    **中文文档**
+
+    返回单列或多列的数据。
     """
-    s = select([column])
-    return [row[column.name] for row in engine.execute(s)]
+    s = select(columns)
+    if len(columns) == 1:
+        c_name = columns[0].name
+        array = [row[0] for row in engine.execute(s)]
+        header, data = c_name, array
+        return header, data
+    else:
+        # from same table
+        if len({column.table.name for column in columns}) == 1:
+            headers = [column.name for column in columns]
+        else:
+            headers = [column.__str__() for column in columns]
+            
+        data = [tuple(row) for row in engine.execute(s)]
+        return headers, data
 
 
 def select_distinct_column(engine, *columns):
     """Select distinct column(columns).
-    
+
     **中文文档**
-    
+
     distinct语句的语法糖函数。
     """
     s = select(columns).distinct()
     if len(columns) == 1:
-        return [row[columns[0].name] for row in engine.execute(s)]
+        c_name = columns[0].name
+        return [row[c_name] for row in engine.execute(s)]
     else:
         return [[row[column.name] for column in columns] for row in engine.execute(s)]

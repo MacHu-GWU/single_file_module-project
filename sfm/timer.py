@@ -51,10 +51,15 @@ class Timer(object):
 
     def __enter__(self):
         self.start()
-
+        return self
+    
     def __exit__(self, *exc_info):
         self.end()
 
+    @property
+    def elapsed(self):
+        return self._elapsed
+    
 
 class EasyTimer(object):
     """A Timer can measure execution time of multiple block of time, respectively.
@@ -70,7 +75,7 @@ class EasyTimer(object):
     def total_elapsed(self):
         return sum(self.records)
 
-    # === single time, multiple time measurement ===
+    # single time, multiple time measurement
     def start(self):
         """Start measuring.
         """

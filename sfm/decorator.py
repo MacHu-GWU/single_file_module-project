@@ -49,23 +49,23 @@ def elapsed_printer(func):
     return _wrapper
 
 
-#--- Unittest ---
-def test_elapsed_printer():
-    import random
+def run_if_is_main(__name__):
+    """
     
-    @elapsed_printer
-    def random_sorted_list(n, lower, upper):
-        """Return a random sorted list
-        """
-        l = [random.randint(lower, upper) for i in range(n)]
-        l.sort()
-        return l
+    **中文文档**
     
-    n = 1000
-    lower = 1
-    upper = 9999
-    l = random_sorted_list(n, lower=lower, upper=upper)
+    此装饰器能够让函数自动只在自己是以主脚本进行时才运行, 否则直接返回None。
+    此装饰器在pytest下无效。
+    """
+    def _run_if_is_main(func):
+        def _wrapper(*args, **kwargs):
+            if __name__ == "__main__":
+                return func(*args, **kwargs)
+        return _wrapper
     
+    return _run_if_is_main
 
-if __name__ == "__main__":
-    test_elapsed_printer()
+
+@run_if_is_main(__name__)
+def test_run_if_is_main():
+    return "HelloWorld"

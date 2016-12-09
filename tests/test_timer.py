@@ -13,7 +13,8 @@ def test_Timer():
     with Timer(display=True, title=title) as timer:
         for index in range(n):
             l[index]
-
+    timer.elapsed
+    
     # Objective Oriented
     title = "Python Style for loop"
     timer = Timer(display=True, title=title)
