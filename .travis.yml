@@ -4,6 +4,8 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+before_install:
+  - sudo apt-get install python-numpy python-scipy python-pandas
 install:
   - pip install six
   - pip install sqlalchemy
@@ -11,6 +13,8 @@ install:
   - pip install mongoengine
   - pip install marshmallow
   - pip install pathlib_mate==0.0.4
+  - pip install numpy
+  - pip install pandas
   - pip install . # Install it self
   - pip install --upgrade pytest
 script: py.test
