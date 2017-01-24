@@ -4,7 +4,6 @@
 import pytest
 from sfm.rnd import *
 
-
 def test_rnd():
     rand_str(32)
     rand_hexstr(12)
@@ -13,7 +12,12 @@ def test_rnd():
     rand_ssn()
     rand_email()
     rand_article()
-
+    
+    first_name()
+    last_name()
+    name()
+    address()
+    company()
 
 if __name__ == "__main__":
     import os

@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import pytest
 import time
 import random
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import create_engine, MetaData, Table, Column
 from sqlalchemy import Integer, String
+from sqlalchemy import select
 from sfm.sqlalchemy_mate import smart_insert
 from sfm import sqlalchemy_mate as sm
 
@@ -131,6 +133,20 @@ def test_select_distinct_column():
             [1, 1], [1, 2], [2, 1], [2, 2]]
 
 
+def test_table_to_csv():
+    engine.execute(t_test.delete())
+    engine.execute(t_test.insert(), [{"id": i + 1} for i in range(10)])
+    
+    filepath = __file__.replace("test_sqlalchemy_mate.py", "t_test.csv")
+    sm.table_to_csv(t_test, engine, filepath, chunksize=1)
+        
+
+def test_sql_to_pretty_table():
+    sql = select([t_test])
+    pretty_table = sm.sql_to_pretty_table(sql, engine)
+    print(pretty_table)
+    
+    
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

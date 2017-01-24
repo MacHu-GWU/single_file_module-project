@@ -124,3 +124,33 @@ def rand_article(num_p=(4, 10), num_s=(2, 15), num_w=(5, 40)):
             p.append(" ".join(s))
         article.append(". ".join(p))
     return "\n\n".join(article)
+
+#--- Just a simple API call for faker ---
+try:
+    import faker
+    
+    class SimpleFaker(object):
+        def __init__(self, locale="en_US"):
+            self.fake = faker.Factory.create(locale)
+    
+    simple_faker = SimpleFaker()
+except:
+    pass
+
+def set_locale(locale):
+    simple_faker.fake = faker.Factory.create(locale=locale)
+    
+def first_name():
+    return simple_faker.fake.first_name()
+
+def last_name():
+    return simple_faker.fake.last_name()
+
+def name():
+    return simple_faker.fake.name()
+
+def address():
+    return simple_faker.fake.address()
+
+def company():
+    return simple_faker.fake.company()

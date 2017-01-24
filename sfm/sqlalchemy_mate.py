@@ -11,6 +11,11 @@ try:
 except:
     pass
 
+try:
+    from prettytable import from_db_cursor
+except:
+    pass
+
 
 def grouper_list(l, n):
     """Evenly divide list into fixed-length piece, no filled value if chunk
@@ -119,7 +124,10 @@ def select_column(engine, *columns):
     :return data: list of row
     
     **中文文档**
-
+    
+    - 在选择单列时, 返回的是 str, list
+    - 在选择多列时, 返回的是 str list, list of list
+    
     返回单列或多列的数据。
     """
     s = select(columns)
@@ -152,3 +160,60 @@ def select_distinct_column(engine, *columns):
         return [row[c_name] for row in engine.execute(s)]
     else:
         return [[row[column.name] for column in columns] for row in engine.execute(s)]
+
+
+def sql_to_csv(sql, engine, filepath, chunksize=1000):
+    """Export sql result to csv file.
+
+    :param sql: :class:`sqlalchemy.sql.selectable.Select`
+    :param engine: :class:'sqlalchemy.engine.base.Engine'
+    :param filepath: file path
+    :param chunksize: number of rows write to csv each time.
+
+    **中文文档**
+
+    将执行sql的结果中的所有数据, 以生成器的方式(一次只使用一小部分内存), 将
+    整个结果写入csv文件。
+    """
+    columns = [str(column.name) for column in sql.columns]
+    with open(filepath, "w") as f:
+        # write header
+        df = pd.DataFrame([], columns=columns)
+        df.to_csv(f, header=True, index=False)
+
+        # iterate big database table
+        result_proxy = engine.execute(sql)
+        while True:
+            data = result_proxy.fetchmany(chunksize)
+            if len(data) == 0:
+                break
+            else:
+                df = pd.DataFrame(data, columns=columns)
+                df.to_csv(f, header=False, index=False)
+
+
+def table_to_csv(table, engine, filepath, chunksize=1000):
+    """Export entire table to a csv file.
+
+    **中文文档**
+
+    将整个表中的所有数据, 写入csv文件。
+    """
+    sql = select([table])
+    sql_to_csv(sql, engine, filepath, chunksize)
+    
+    
+def sql_to_pretty_table(sql, engine):
+    """
+    
+    **中文文档**
+    
+    根据sql, 获取pretty table。
+    """
+    # 注意, from_db_cursor是从原生的数据库游标通过调用fetchall()方法来获取数据。
+    # 而sqlalchemy返回的是ResultProxy类。所以我们需要从中获取游标
+    # 至于为什么不能直接使用 from_db_cursor(engine.execute(sql).cursor) 的语法
+    # 我也不知道为什么
+    result_proxy = engine.execute(sql)
+    table = from_db_cursor(result_proxy.cursor)
+    return table

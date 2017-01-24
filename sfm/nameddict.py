@@ -25,6 +25,7 @@ class Base(object):
     :meth:`~Base.to_json()`, 方法中要被包括的属性。
     """
     __reserved__ = set(["keys", "values", "items"])
+    
     def __init__(self, **kwargs):
         for attr, value in kwargs.items():
             if attr in self.__reserved__:

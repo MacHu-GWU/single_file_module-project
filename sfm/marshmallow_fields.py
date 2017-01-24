@@ -29,6 +29,9 @@ class AutoConvertField(AllowNoneField):
     在load和dump之前都自动调用covert函数进行数据预处理。常用于int, float或
     string这一类原生类。
     """
+    def convert(self, value):
+        raise NotImplementedError
+    
     def _serialize(self, value, attr, obj):
         return self.convert(value)
     
