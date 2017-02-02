@@ -8,6 +8,7 @@ extend the power of pymongo.
 import math
 import pymongo
 
+
 def grouper_list(l, n):
     """Evenly divide list into fixed-length piece, no filled value if chunk
     size smaller than fixed-length.
@@ -83,51 +84,143 @@ def smart_insert(col, data, minimal_size=5):
             col.insert(data)
         except pymongo.errors.DuplicateKeyError:
             pass
-        
+
+
+def select_all(col):
+    return list(col.find())
+
+
+def selelct_field(col, *fields):
+    """Select single or multiple fields.
+    
+    :params fields: list of str
+    :returns headers: headers
+    :return data: list of row
+    
+    **中文文档**
+    
+    - 在选择单列时, 返回的是 str, list
+    - 在选择多列时, 返回的是 str list, list of list
+    
+    返回单列或多列的数据。
+    """
+    if len(fields) == 1:
+        header = fields[0]
+        data = [doc.get(header) for doc in col.find()]
+        return header, data
+    else:
+        headers = fields
+        data = [[doc.get(header) for header in headers] for doc in col.find()]
+        return headers, data
+
+
+def select_distinct_field(col, *columns):
+    if len(columns) == 1:
+        key = columns[0]
+        data = list(col.find({}).distinct(key))
+        return data
+    else:
+        pipeline = [
+            {
+                "$group": {
+                    "_id": {key: "$" + key for key in columns},
+                },
+            },
+        ]
+        data = list()
+        for doc in col.aggregate(pipeline):
+            # doc = {"_id": {"a": 0, "b": 0}} ...
+            data.append([doc["_id"][key] for key in columns])
+        return data
+
 
 #--- Unittest ---
-def test_smart_insert():
-    def insert_test_data():
-        col.remove({})
-        
-        data = [{"_id": random.randint(1, 10000)} for i in range(20)]
+if __name__ == "__main__":
+    import time
+    import random
+    from sfm.decorator import run_if_is_main
+
+    client = pymongo.MongoClient()
+    db = client.get_database("test")
+    col = db.get_collection("test")
+
+    @run_if_is_main(__name__)
+    def test_smart_insert():
+        def insert_test_data():
+            col.remove({})
+
+            data = [{"_id": random.randint(1, 10000)} for i in range(20)]
+            for doc in data:
+                try:
+                    col.insert(doc)
+                except:
+                    pass
+            assert 15 <= col.find().count() <= 20
+        data = [{"_id": i} for i in range(1, 1 + 10000)]
+        # Smart Insert
+        insert_test_data()
+
+        st = time.clock()
+        smart_insert(col, data)
+        elapse1 = time.clock() - st
+
+        # after smart insert, we got 10000 doc
+        assert col.find().count() == 10000
+
+        # Regular Insert
+        insert_test_data()
+
+        st = time.clock()
         for doc in data:
             try:
                 col.insert(doc)
             except:
                 pass
-        assert 15 <= col.find().count() <= 20
-    data = [{"_id": i} for i in range(1, 1 + 10000)]
-    # Smart Insert
-    insert_test_data()
-    
-    st = time.clock()
-    smart_insert(col, data)
-    elapse1 = time.clock() - st
-    
-    assert col.find().count() == 10000 # after smart insert, we got 10000 doc
-    
-    # Regular Insert
-    insert_test_data()
-     
-    st = time.clock()
-    for doc in data:
-        try:
-            col.insert(doc)
-        except:
-            pass
-    elapse2 = time.clock() - st
-     
-    assert col.find().count() == 10000 # after regular insert, we got 10000 doc
-     
-    assert elapse1 <= elapse2
-    
-    
-if __name__ == "__main__":
-    import time
-    import random
-    
-    client = pymongo.MongoClient()
-    db = client.get_database("test")
-    col = db.get_collection("test")
+        elapse2 = time.clock() - st
+
+        # after regular insert, we got 10000 doc
+        assert col.find().count() == 10000
+
+        assert elapse1 <= elapse2
+
     test_smart_insert()
+
+    @run_if_is_main(__name__)
+    def test_selelct_field():
+        def insert_test_data():
+            col.remove({})
+
+            data = [{"_id": i, "a": i} for i in range(10)]
+
+            col.insert(data)
+
+        insert_test_data()
+
+        header, data = selelct_field(col, "_id")
+        assert data == list(range(10))
+
+        headers, data = selelct_field(col, "_id", "a")
+        assert data == [[i, i] for i in range(10)]
+
+    test_selelct_field()
+
+    @run_if_is_main(__name__)
+    def test_select_distinct():
+        def insert_test_data():
+            col.remove({})
+
+            distinct_complexity = 10
+            data = list()
+            for i in range(distinct_complexity):
+                for j in range(distinct_complexity):
+                    for k in range(distinct_complexity):
+                        data.append({"a": i, "b": j, "c": k})
+            col.insert(data)
+
+        insert_test_data()
+
+        assert select_distinct_field(col, "a") == list(range(10))
+        assert len((select_distinct_field(col, "a", "b"))) == 100
+        assert len((select_distinct_field(col, "a", "b", "c"))) == 1000
+
+    test_select_distinct()

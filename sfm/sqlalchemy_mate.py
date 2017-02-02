@@ -118,8 +118,9 @@ def select_all(engine, table):
 
 
 def select_column(engine, *columns):
-    """Select single column.
+    """Select single or multiple columns.
     
+    :param columns: list of sqlalchemy.Column instance
     :returns headers: headers
     :return data: list of row
     
