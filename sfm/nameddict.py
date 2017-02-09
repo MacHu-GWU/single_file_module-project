@@ -28,6 +28,11 @@ class Base(object):
     :meth:`~Base.to_list()`, :meth:`~Base.to_dict()`, :meth:`~Base.to_OrderedDict()`,
     :meth:`~Base.to_json()`, 方法中要被包括的属性。
     """
+    
+    __excludes__ = []
+    """在此被定义的属性将不会出现在 :meth:`~Base.items()` 中
+    """
+    
     __reserved__ = set(["keys", "values", "items"])
 
     def __init__(self, **kwargs):
@@ -63,16 +68,22 @@ class Base(object):
         当有 ``@property`` 装饰器所装饰的属性时, 若没有在 ``__attrs__`` 中定义,
         则items中不会包含它。
         """
+        items = list()
+        
         if self.__attrs__ is None:
-            return list(sorted(self.__dict__.items(), key=lambda x: x[0]))
+            for key, value in self.__dict__.items():
+                if key not in self.__excludes__:
+                    items.append((key, value))
+            items = list(sorted(items, key=lambda x: x[0]))
+            return items
         try:
-            items = list()
             for attr in self.__attrs__:
-                try:
-                    items.append((attr, copy.deepcopy(getattr(self, attr))))
-                except AttributeError:
-                    items.append(
-                        (attr, copy.deepcopy(self.__dict__.get(attr))))
+                if attr not in self.__excludes__:
+                    try:
+                        items.append((attr, copy.deepcopy(getattr(self, attr))))
+                    except AttributeError:
+                        items.append(
+                            (attr, copy.deepcopy(self.__dict__.get(attr))))
             return items
         except:
             raise AttributeError()

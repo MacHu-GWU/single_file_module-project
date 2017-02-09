@@ -8,6 +8,7 @@ This module extend the power of mongoengine.
 import math
 import mongoengine
 from collections import OrderedDict
+from copy import deepcopy
 
 
 def grouper_list(l, n):
@@ -105,30 +106,49 @@ class ExtendedDocument(mongoengine.Document):
     
     def absorb(self, other):
         """For attributes of others that value is not None, assign it to self.
+        
+        **中文文档**
+        
+        将另一个文档中的数据更新到本条文档。当且仅当数据值不为None时。
         """
         if not isinstance(other, self.__class__):
             raise TypeError
         
         for attr, value in other.items():
             if value is not None:
-                setattr(self, attr, value)
+                setattr(self, attr, deepcopy(value))
                 
     def revise(self, data):
         """Revise attributes value with dictionary data.
+        
+        **中文文档**
+        
+        将一个字典中的数据更新到本条文档。当且仅当数据值不为None时。
         """
+        if not isinstance(data, dict):
+            raise TypeError
+        
         for key, value in data.items():
             if value is not None:
-                setattr(self, key, value)
+                setattr(self, key, deepcopy(value))
     
     @classmethod
     def collection(cls):
         """Get pymongo Collection instance.
+        
+        **中文文档**
+        
+        获得pymongo.Collection的实例。
         """
         return cls._get_collection()
     
     @classmethod
     def col(cls):
         """Get pymongo Collection instance.
+        
+        **中文文档**
+        
+        获得pymongo.Collection的实例。
         """
         return cls._get_collection()
             
@@ -176,7 +196,27 @@ class ExtendedDocument(mongoengine.Document):
             except mongoengine.NotUniqueError:
                 pass
 
-
+    @classmethod
+    def by_id(cls, _id):
+        """Get one instance by _id.
+        
+        **中文文档**
+        
+        根据_id, 返回一条文档。
+        """
+        return cls.objects(__raw__={"_id": _id}).get()
+    
+    @classmethod
+    def by_filter(cls, filter):
+        """Filter objects by pymongo dict query.
+        
+        **中文文档**
+        
+        使用pymongo的API进行query。
+        """
+        return cls.objects(__raw__=filter)
+    
+    
 #--- Unittest ---
 class User(ExtendedDocument):
     id = mongoengine.IntField(primary_key=True)
@@ -231,7 +271,16 @@ def test_smart_insert():
     
     assert elapse1 <= elapse2
     
+
+def test_query():
+    User(id=1, name="Jack").save()
+    User(id=2, name="Tom").save()
     
+    assert User.by_id(1).name == "Jack"
+    assert User.by_filter({"_id": 2})[:][0].name == "Tom"
+
+
 if __name__ == "__main__":
     #
-    test_smart_insert()
+#     test_smart_insert()
+    test_query()

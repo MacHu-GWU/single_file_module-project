@@ -72,6 +72,15 @@ def test_property_decorator():
     assert employee.to_dict()["total_salary"] == 1300
 
 
+def test_excludes_attribute_name():
+    class User(Base):
+        __attrs__ = ["id", "name", "gender"]
+        __excludes__ = ["name"]
+        
+    user = User(id=1, name="Jack", gender="male")
+    assert user.keys() == ["id", "gender"]
+    
+    
 def test_reserved_attribute_name():
     class User(Base):
         pass
