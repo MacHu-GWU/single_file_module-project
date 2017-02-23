@@ -206,18 +206,10 @@ class Transform(object):
 
     @staticmethod
     def generic_python_dict_list(df, int_col=None):
-        """
-        
-        **中文文档**
-        
-        将pandas.DataFrame转化成字典列表的形式(可用于MongoDB)。并且其中的数据
-        格式按照: nan -> None, numpy.int64 -> int, pandas.Timestamp -> datetime.
-        的方式转化。
-        """
         data = json.loads(df.to_json(orient="records", date_format="iso"))
 
         datetime_col = list()
-        for col, dtype in df.dtypes.items():
+        for col, dtype in dict(df.dtypes).items():
             if "datetime64" in str(dtype):
                 datetime_col.append(col)
         if len(datetime_col) == 0:
