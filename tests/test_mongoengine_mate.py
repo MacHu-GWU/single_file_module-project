@@ -38,7 +38,7 @@ def test_absorb_and_revise():
     user_data = {"name": "Mike"}
     user.revise(user_data)
     assert user.name == "Mike"
-    
+        
     
 if __name__ == "__main__":
     import os

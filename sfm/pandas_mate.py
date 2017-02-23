@@ -6,8 +6,14 @@ if sys.version_info[0] == 2:
     from itertools import (
         izip as zip,
     )
+
+import math
+import json
+from datetime import datetime
 from collections import OrderedDict
+
 import pandas as pd
+from rolex import rolex
 
 
 def itertuple(df):
@@ -58,7 +64,7 @@ class IOTool(object):
             df = pd.read_csv(path, **kwargs)
             for tp in itertuple(df):
                 yield tp
-    
+
     @staticmethod
     def index_row_map_from_csv(path,
                                index_col=None,
@@ -68,10 +74,11 @@ class IOTool(object):
                                nrows=None,
                                use_ordered_dict=True,
                                **kwargs):
-        """
-        
+        """Read the csv into a dictionary. The key is it's index, the value
+        is the dictionary form of the row.
+
         **中文文档**
-        
+
         读取csv, 选择一值完全不重复, 可作为index的列作为index, 生成一个字典
         数据结构, 使得可以通过index直接访问row。
         """
@@ -108,6 +115,42 @@ class IOTool(object):
 
         return table
 
+    @staticmethod
+    def to_sql_smart_insert(df, table, engine, minimal_size=5):
+        """An optimized Insert strategy.
+
+        **中文文档**
+
+        一种优化的将大型DataFrame中的数据, 在有IntegrityError的情况下将所有
+        好数据存入数据库的方法。
+        """
+        from sqlalchemy.exc import IntegrityError
+
+        insert = table.insert()
+
+        # 首先进行尝试bulk insert
+        try:
+            df.to_sql(table.name, engine, index=False, if_exists="append")
+        # 失败了
+        except IntegrityError:
+            # 分析数据量
+            n = df.shape[0]
+            # 如果数据条数多于一定数量
+            if n >= minimal_size ** 2:
+                # 则进行分包
+                n_chunk = math.floor(math.sqrt(n))
+                for sub_df in Transform.grouper_df(df, n_chunk):
+                    IOTool.to_sql_smart_insert(
+                        sub_df, table, engine, minimal_size)
+            # 否则则一条条地逐条插入
+            else:
+                for sub_df in Transform.grouper_df(df, 1):
+                    try:
+                        sub_df.to_sql(
+                            table.name, engine, index=False, if_exists="append")
+                    except IntegrityError:
+                        pass
+
 
 class Transform(object):
 
@@ -140,3 +183,84 @@ class Transform(object):
             table[ind] = dict(zip(columns, tp))
 
         return table
+
+    @staticmethod
+    def grouper_df(df, n):
+        """Evenly divide pd.DataFrame into n rows piece, no filled value 
+        if sub dataframe's size smaller than n.
+        """
+        data = list()
+        counter = 0
+        for tp in zip(*(l for col, l in df.iteritems())):
+            counter += 1
+            data.append(tp)
+            if counter == n:
+                new_df = pd.DataFrame(data, columns=df.columns)
+                yield new_df
+                data = list()
+                counter = 0
+
+        if len(data) > 0:
+            new_df = pd.DataFrame(data, columns=df.columns)
+            yield new_df
+
+    @staticmethod
+    def generic_python_dict_list(df, int_col=None):
+        """
+        
+        **中文文档**
+        
+        将pandas.DataFrame转化成字典列表的形式(可用于MongoDB)。并且其中的数据
+        格式按照: nan -> None, numpy.int64 -> int, pandas.Timestamp -> datetime.
+        的方式转化。
+        """
+        data = json.loads(df.to_json(orient="records", date_format="iso"))
+
+        datetime_col = list()
+        for col, dtype in df.dtypes.items():
+            if "datetime64" in str(dtype):
+                datetime_col.append(col)
+        if len(datetime_col) == 0:
+            datetime_col = None
+
+        if (int_col is not None) and (not isinstance(int_col, (list, tuple))):
+            int_col = [int_col, ]
+
+        if int_col is None and datetime_col is None:
+            return data
+
+        elif int_col is None and datetime_col is not None:
+            def func(doc):
+                for col in datetime_col:
+                    try:
+                        doc[col] = rolex.str2datetime(doc[col])
+                    except:
+                        pass
+                return doc
+
+        elif int_col is not None and datetime_col is None:
+            def func(doc):
+                for col in int_col:
+                    try:
+                        doc[col] = int(doc[col])
+                    except:
+                        pass
+                return doc
+
+        else:
+            def func(doc):
+                for col in int_col:
+                    try:
+                        doc[col] = int(doc[col])
+                    except:
+                        pass
+
+                for col in datetime_col:
+                    try:
+                        doc[col] = rolex.str2datetime(doc[col])
+                    except:
+                        pass
+
+                return doc
+
+        return list(map(func, data))

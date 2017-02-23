@@ -139,7 +139,14 @@ def test_table_to_csv():
     
     filepath = __file__.replace("test_sqlalchemy_mate.py", "t_test.csv")
     sm.table_to_csv(t_test, engine, filepath, chunksize=1)
-        
+    
+    # temp file will be removed in 20 seconds
+    time.sleep(20)
+    try:
+        os.remove("t_test.csv")
+    except:
+        pass
+    
 
 def test_sql_to_pretty_table():
     sql = select([t_test])
