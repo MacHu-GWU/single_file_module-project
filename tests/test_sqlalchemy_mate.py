@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 import pytest
+import os
 import time
 import random
 from sqlalchemy.exc import IntegrityError
@@ -153,7 +154,7 @@ def test_sql_to_pretty_table():
     pretty_table = sm.sql_to_pretty_table(sql, engine)
     print(pretty_table)
     
-    
+
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
