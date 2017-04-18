@@ -6,6 +6,7 @@ This module extend the power of mongoengine.
 """
 
 import math
+import random
 import mongoengine
 from collections import OrderedDict
 from copy import deepcopy
@@ -207,19 +208,62 @@ class ExtendedDocument(mongoengine.Document):
         return cls.objects(__raw__={"_id": _id}).get()
     
     @classmethod
-    def by_filter(cls, filter):
+    def by_filter(cls, filters):
         """Filter objects by pymongo dict query.
         
         **中文文档**
         
         使用pymongo的API进行query。
         """
-        return cls.objects(__raw__=filter)
-    
-    
+        return cls.objects(__raw__=filters)
+
+    @classmethod
+    def random_sample(cls, filters=None, n=5):
+        """
+        
+        **中文文档**
+        
+        从collection中随机选择 ``n`` 个样本。
+        """
+        data = list()
+        
+        id_field = cls._meta["id_field"]
+        
+        if filters is None:
+            pipeline = [{"$sample": {"size": n}}]
+            col = cls.col()
+            
+            if id_field == "_id":
+                for doc in col.aggregate(pipeline):
+                    obj = cls(**doc)
+                    data.append(obj)
+            
+            else:
+                for doc in col.aggregate(pipeline):
+                    doc[id_field] = doc["_id"]
+                    del doc["_id"]
+                    obj = cls(**doc)
+                    data.append(obj)
+        else:
+            if id_field == "_id":
+                for doc in random.sample(list(cls.col().find(filters)), n):
+                    obj = cls(**doc)
+                    data.append(obj)
+            else:
+                filters["_id"] = filters[id_field] 
+                del filters[id_field]
+                for doc in random.sample(list(cls.col().find(filters)), n):
+                    doc[id_field] = doc["_id"]
+                    del doc["_id"]
+                    obj = cls(**doc)
+                    data.append(obj)
+        
+        return data
+
+
 #--- Unittest ---
 class User(ExtendedDocument):
-    id = mongoengine.IntField(primary_key=True)
+    user_id = mongoengine.IntField(primary_key=True)
     name = mongoengine.StringField()
 
     meta = {"collection": "user"}
@@ -238,11 +282,11 @@ def test_smart_insert():
     # Smart Insert
     User.objects.delete()
     
-    users = set([User(id=random.randint(1, 10000)) for i in range(20)])
+    users = set([User(user_id=random.randint(1, 10000)) for i in range(20)])
     User.objects.insert(users)
     assert 15 <= User.objects.count() <= 20
     
-    users = [User(id=i) for i in range(1, 1 + 10000)]
+    users = [User(user_id=i) for i in range(1, 1 + 10000)]
     
     st = time.clock()
     User.smart_insert(users)
@@ -253,11 +297,11 @@ def test_smart_insert():
     # Regular Insert
     User.objects.delete()
     
-    users = set([User(id=random.randint(1, 10000)) for i in range(20)])
+    users = set([User(user_id=random.randint(1, 10000)) for i in range(20)])
     User.objects.insert(users)
     assert 15 <= User.objects.count() <= 20
     
-    users = [User(id=i) for i in range(1, 1 + 10000)]
+    users = [User(user_id=i) for i in range(1, 1 + 10000)]
     
     st = time.clock()
     for user in users:
@@ -273,14 +317,26 @@ def test_smart_insert():
     
 
 def test_query():
-    User(id=1, name="Jack").save()
-    User(id=2, name="Tom").save()
+    User(user_id=1, name="Jack").save()
+    User(user_id=2, name="Tom").save()
     
     assert User.by_id(1).name == "Jack"
     assert User.by_filter({"_id": 2})[:][0].name == "Tom"
 
 
+def test_random_sample():
+    User.col().remove({})
+    for i in range(1000):
+        user = User(user_id=i)
+        user.save()
+    
+    assert len(User.random_sample(n=3)) == 3
+    for user in User.random_sample(filters={"user_id": {"$gte": 500}}, n=3):
+        assert user.user_id >= 500
+
+
 if __name__ == "__main__":
     #
-#     test_smart_insert()
+    test_smart_insert()
     test_query()
+    test_random_sample()

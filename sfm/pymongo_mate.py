@@ -6,6 +6,7 @@ extend the power of pymongo.
 """
 
 import math
+import random
 import pymongo
 
 
@@ -92,16 +93,16 @@ def select_all(col):
 
 def selelct_field(col, *fields):
     """Select single or multiple fields.
-    
+
     :params fields: list of str
     :returns headers: headers
     :return data: list of row
-    
+
     **中文文档**
-    
+
     - 在选择单列时, 返回的是 str, list
     - 在选择多列时, 返回的是 str list, list of list
-    
+
     返回单列或多列的数据。
     """
     if len(fields) == 1:
@@ -114,24 +115,52 @@ def selelct_field(col, *fields):
         return headers, data
 
 
-def select_distinct_field(col, *columns):
-    if len(columns) == 1:
-        key = columns[0]
+def select_distinct_field(col, *fields):
+    """Select distinct value or combination of values of 
+    single or multiple fields.
+
+    :params fields: list of str
+    :return data: list of list
+
+    **中文文档**
+
+    选择多列中出现过的所有可能的排列组合。
+    """
+    if len(fields) == 1:
+        key = fields[0]
         data = list(col.find({}).distinct(key))
         return data
     else:
         pipeline = [
             {
                 "$group": {
-                    "_id": {key: "$" + key for key in columns},
+                    "_id": {key: "$" + key for key in fields},
                 },
             },
         ]
         data = list()
         for doc in col.aggregate(pipeline):
             # doc = {"_id": {"a": 0, "b": 0}} ...
-            data.append([doc["_id"][key] for key in columns])
+            data.append([doc["_id"][key] for key in fields])
         return data
+
+
+def random_sample(col, filters=None, n=5):
+    """
+
+    **中文文档**
+
+    从collection中随机选择 ``n`` 个样本。
+    """
+    if filters is None:
+        data = list()
+        pipeline = [{"$sample": {"size": n}}]
+        for doc in col.aggregate(pipeline):
+            data.append(doc)
+    else:
+        data = random.sample(list(col.find(filters)), n)
+        
+    return data
 
 
 #--- Unittest ---
@@ -224,3 +253,20 @@ if __name__ == "__main__":
         assert len((select_distinct_field(col, "a", "b", "c"))) == 1000
 
     test_select_distinct()
+    
+    @run_if_is_main(__name__)
+    def test_random_sample():
+        def insert_test_data():
+            col.remove({})
+
+            n = 1000
+            data = [{"_id": i} for i in range(n)]
+            col.insert(data)
+
+        insert_test_data()
+        
+        assert len(random_sample(col, n=3)) == 3
+        for doc in random_sample(col, {"_id": {"$gte": 500}}, n=3):
+            assert doc["_id"] >= 500
+
+    test_random_sample()

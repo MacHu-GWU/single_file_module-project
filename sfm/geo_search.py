@@ -15,7 +15,7 @@ def great_circle(point1, point2, miles=True):
     """ Calculate the great-circle distance bewteen two points on the Earth surface.
     :input: two 2-tuples, containing the latitude and longitude of each point
     in decimal degrees.
-    Example: haversine((45.7597, 4.8422), (48.8567, 2.3508))
+    Example: great_circle((45.7597, 4.8422), (48.8567, 2.3508))
     :output: Returns the distance bewteen the two points.
     The default unit is kilometers. Miles can be returned
     if the ``miles`` parameter is set to True.

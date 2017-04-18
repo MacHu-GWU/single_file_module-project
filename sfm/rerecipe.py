@@ -45,6 +45,8 @@ def extract_by_prefix_surfix(text, prefix, surfix, minlen=None, maxlen=None,
 
 
 def extract_number(text):
+    """Extract digit character from text.
+    """
     result = list()
     chunk = list()
     valid_char = set(".1234567890")
@@ -76,7 +78,10 @@ _regex_extract_email = re.compile(
 _regex_validate_email = re.compile(
     r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
+
 def extract_email(text):
+    """Extract email from text.
+    """
     result = list()
     for tp in re.findall(_regex_extract_email, text.lower()):
         for email in tp:
@@ -92,6 +97,24 @@ _regex_web_url = re.compile(
 """ref: https://github.com/rcompton/ryancompton.net/blob/master/assets/praw_drugs/urlmarker.py
 """
 
+
 def extract_web_url(text):
+    """Extract url from text.
+    """
     return re.findall(_regex_web_url, text)
-    
+
+_regex_date_iso = "\d{4}-\d{1,2}-\d{1,2}"
+
+
+def extract_date_iso(text):
+    """Extract iso date format (%yyyy-%mm-%dd) from text.
+    """
+    return re.findall(_regex_date_iso, text)
+
+_regex_date_us = "\d{1,2}/\d{1,2}/\d{2,4}"
+
+
+def extract_date_us(text):
+    """Extract US format (%m/%d/%y) from text
+    """
+    return re.findall(_regex_date_us, text)

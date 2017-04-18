@@ -42,6 +42,16 @@ def test_extract_web_url():
     assert rerecipe.extract_web_url(text) == ['https://www.google.com/logo.png']
 
 
+def test_extract_date_iso():
+    text = "Release on 2016-01-21"
+    assert rerecipe.extract_date_iso(text) == ["2016-01-21"]
+
+
+def test_extract_date_us():
+    text = "Release on 1/21/2016"
+    assert rerecipe.extract_date_us(text) == ["1/21/2016"]
+    
+
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

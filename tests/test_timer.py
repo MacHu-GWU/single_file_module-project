@@ -50,7 +50,7 @@ def test_timeit():
         for index in range(len(l)):
             item = l[index]
 
-    n = 100
+    n = 1000
     l = list(range(n))
     kwargs = {"l": l}
 

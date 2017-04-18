@@ -7,6 +7,7 @@ from sfm.rnd import *
 def test_rnd():
     rand_str(32)
     rand_hexstr(12)
+    rand_alphastr(12)
     rand_pwd(12)
     rand_phone()
     rand_ssn()
@@ -18,6 +19,7 @@ def test_rnd():
     name()
     address()
     company()
+
 
 if __name__ == "__main__":
     import os
