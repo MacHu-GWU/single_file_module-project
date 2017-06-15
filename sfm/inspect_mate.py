@@ -39,7 +39,7 @@ def is_attribute(klass, attr, value=None):
     """
     if value is None:
         value = getattr(klass, attr)
-    assert getattr(klass, attr) == value
+    # assert getattr(klass, attr) == value
 
     if not inspect.isroutine(value):
         if not isinstance(value, property):
@@ -56,7 +56,7 @@ def is_property_method(klass, attr, value=None):
     """
     if value is None:
         value = getattr(klass, attr)
-    assert getattr(klass, attr) == value
+    # assert getattr(klass, attr) == value
 
     if not inspect.isroutine(value):
         if isinstance(value, property):
@@ -79,7 +79,7 @@ def is_regular_method(klass, attr, value=None):
     """
     if value is None:
         value = getattr(klass, attr)
-    assert getattr(klass, attr) == value
+    # assert getattr(klass, attr) == value
 
     if inspect.isroutine(value):
         if not is_static_method(klass, attr, value) \
@@ -105,7 +105,7 @@ def is_static_method(klass, attr, value=None):
     """
     if value is None:
         value = getattr(klass, attr)
-    assert getattr(klass, attr) == value
+    # assert getattr(klass, attr) == value
 
     for cls in inspect.getmro(klass):
         if inspect.isroutine(value):
@@ -132,7 +132,7 @@ def is_class_method(klass, attr, value=None):
     """
     if value is None:
         value = getattr(klass, attr)
-    assert getattr(klass, attr) == value
+    # assert getattr(klass, attr) == value
 
     for cls in inspect.getmro(klass):
         if inspect.isroutine(value):
