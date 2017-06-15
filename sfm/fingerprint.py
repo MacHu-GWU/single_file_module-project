@@ -77,7 +77,7 @@ class FingerPrint(object):
         """Set to return hex string.
         """
         self.return_int = False
-        
+
     def set_pickle_protocol(self, pk_protocol):
         """Set pickle protocol.
         """
@@ -145,10 +145,10 @@ class FingerPrint(object):
             raise ValueError("chunk_size cannot smaller than 1")
         if (nbytes > 0) and (nbytes < chunk_size):
             chunk_size = nbytes
-    
+
         m = self.hash_algo()
         with open(abspath, "rb") as f:
-            if nbytes: # use first n bytes
+            if nbytes:  # use first n bytes
                 have_reads = 0
                 while True:
                     have_reads += chunk_size
@@ -161,13 +161,14 @@ class FingerPrint(object):
                     else:
                         data = f.read(chunk_size)
                         m.update(data)
-            else: # use entire content
+            else:  # use entire content
                 while True:
                     data = f.read(chunk_size)
                     if not data:
                         break
                     m.update(data)
-                    
+
         return m.hexdigest()
+
 
 fingerprint = FingerPrint()

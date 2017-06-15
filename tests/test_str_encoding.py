@@ -30,8 +30,8 @@ def test_hexstr():
     s = "中文英文日文"
     s1 = str_encoding.encode_hexstr(s)
     assert len(set(s1).difference("0123456789abcdef")) == 0
-    
-    
+
+
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

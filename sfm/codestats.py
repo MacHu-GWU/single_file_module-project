@@ -236,7 +236,7 @@ class CodeStats(object):
 if __name__ == "__main__":
     import os
 
-    workspace = os.path.dirname(__file__) 
+    workspace = os.path.dirname(__file__)
 
     analyzer = CodeStats(workspace)
 

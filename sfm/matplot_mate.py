@@ -64,7 +64,7 @@ def format_x_tick(axis,
                   minor_locator=None,
                   minor_formatter=None):
     """Set x axis's format.
-    
+
     This method is designed for time axis.
 
     **中文文档**
@@ -174,11 +174,11 @@ def get_min(array):
 def get_yAxis_limit(y, lower=0.05, upper=0.2):
     """Find optimal y_min and y_max that guarantee enough space for legend and 
     plot.
-        
+
     **中文文档**
 
     计算y坐标轴的最小和最大坐标。
-    
+
     :params lower: ymin为 y的最小值再减去gap的一定倍率
     :params upper: ymax为 y的最大值再加上gap的一定倍率    
     """
@@ -196,7 +196,7 @@ def get_yAxis_limit(y, lower=0.05, upper=0.2):
 
 def create_figure(width=20, height=10):
     """Create a figure instance.
-    
+
     :params width: figure width
     :params height: figure height
     """
@@ -217,7 +217,7 @@ def preprocess_x_y(x, y):
             return True
         else:
             return False
-        
+
     if is_iterable_slicable(x):
         if is_iterable_slicable(x[0]):
             return x, y
@@ -249,29 +249,29 @@ def plot_time_series(x, y,
 
     lines = list()
     for time, value in zip(x, y):
-        lines.append(axis.plot(time, value, 
+        lines.append(axis.plot(time, value,
                                lw=linewidth, ls=linestyle, c=next(cycol))[0])
 
     format_x_tick(axis,
                   x_major_locattor, x_major_formatter,
                   x_minor_locattor, x_minor_formatter,)
-    
+
     y_min, y_max = get_yAxis_limit(
-        np.array(y).flatten(), 
-        lower=0.05, 
+        np.array(y).flatten(),
+        lower=0.05,
         upper=0.1 * len(x),
     )
     set_ylim(axis, y_min, y_max)
-    
+
     set_title_xlabel_ylabel(axis, title, xlabel, ylabel)
-    
+
     set_legend(axis, lines, legend)
-    
+
     return plt
 
 
-def plot_one_day(x, y, 
-                 linewidth=1, linestyle="-", 
+def plot_one_day(x, y,
+                 linewidth=1, linestyle="-",
                  xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
@@ -288,8 +288,8 @@ def plot_one_day(x, y,
                             )
 
 
-def plot_one_week(x, y, 
-                  linewidth=1, linestyle="-", 
+def plot_one_week(x, y,
+                  linewidth=1, linestyle="-",
                   xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
@@ -306,8 +306,8 @@ def plot_one_week(x, y,
                             )
 
 
-def plot_one_month(x, y, 
-                   linewidth=1, linestyle="-", 
+def plot_one_month(x, y,
+                   linewidth=1, linestyle="-",
                    xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
@@ -324,8 +324,8 @@ def plot_one_month(x, y,
                             )
 
 
-def plot_one_quarter(x, y, 
-                     linewidth=1, linestyle="-", 
+def plot_one_quarter(x, y,
+                     linewidth=1, linestyle="-",
                      xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
@@ -342,8 +342,8 @@ def plot_one_quarter(x, y,
                             )
 
 
-def plot_one_year(x, y, 
-                  linewidth=1, linestyle="-", 
+def plot_one_year(x, y,
+                  linewidth=1, linestyle="-",
                   xlabel=None, ylabel=None, title=None, legend=None, cycol=None):
     """
     """
@@ -360,62 +360,63 @@ def plot_one_year(x, y,
                             )
 
 #--- Twin Axis ---
-def plot_two_scales(x1, y1, x2, y2, 
+
+
+def plot_two_scales(x1, y1, x2, y2,
                     linewidth=1, linestyle="-",
                     xlabel=None, ylabel1=None, ylabel2=None,
                     x_major_locattor=None, x_major_formatter=None,
                     x_minor_locattor=None, x_minor_formatter=None,
                     title=None, legend=None, cycol=None):
     """
-    
+
     **中文文档**
-    
+
     将两种不同尺度的线画在一张图上。
     """
     x1, y1 = preprocess_x_y(x1, y1)
     x2, y2 = preprocess_x_y(x2, y2)
-    
-    
+
     if cycol is None:
         cycol = cycle("brgcmyk")
-        
+
     plt.close("all")
     figure, axis1 = create_figure()
     axis2 = axis1.twinx()
 
     lines = list()
     for time, value in zip(x1, y1):
-        lines.append(axis1.plot(time, value, 
+        lines.append(axis1.plot(time, value,
                                 lw=linewidth, ls=linestyle, c=next(cycol))[0])
 
     for time, value in zip(x2, y2):
-        lines.append(axis2.plot(time, value, 
+        lines.append(axis2.plot(time, value,
                                 lw=linewidth, ls=linestyle, c=next(cycol))[0])
 
     format_x_tick(axis1,
                   x_major_locattor, x_major_formatter,
                   x_minor_locattor, x_minor_formatter,)
-    
+
     y1_min, y1_max = get_yAxis_limit(
-        np.array(y1).flatten(), 
-        lower=0.05, 
+        np.array(y1).flatten(),
+        lower=0.05,
         upper=0.1 * len(y1),
     )
     set_ylim(axis1, y1_min, y1_max)
-    
+
     y2_min, y2_max = get_yAxis_limit(
-        np.array(y2).flatten(), 
-        lower=0.05, 
+        np.array(y2).flatten(),
+        lower=0.05,
         upper=0.1 * len(y2),
     )
     set_ylim(axis2, y2_min, y2_max)
-    
+
     set_title_xlabel_ylabel(axis1, title, xlabel, ylabel1)
-    
+
     set_title_xlabel_ylabel(axis2, title, xlabel, ylabel2)
-    
+
     set_legend(axis1, lines, legend)
-    
+
     return plt
 
 
@@ -434,13 +435,13 @@ if __name__ == "__main__":
         assert get_min(np.array([None, 1, 2])) == 1
         with raises(ValueError):
             get_min(np.array([None, None, None]))
-            
+
     test_get_max_get_min()
-    
+
     def test_get_yAxis_limit():
         assert get_yAxis_limit([0, 1], lower=0.05, upper=0.2) \
             == approx([-0.05, 1.2])
-        
+
     test_get_yAxis_limit()
 
     def test_preprocess_x_y():
@@ -448,16 +449,16 @@ if __name__ == "__main__":
         t = (1, 2, 3)
         x, y = preprocess_x_y(l, l)
         assert x == (l, )
-        
+
         x, y = preprocess_x_y(t, t)
         assert x == (t, )
-        
+
         x, y = preprocess_x_y([t, t], [t, t])
         assert x == [t, t]
-        
+
         x, y = preprocess_x_y((t, t), (t, t))
         assert x == (t, t)
-        
+
     test_preprocess_x_y()
 
     def test_plot_one_day():

@@ -56,7 +56,7 @@ def find_lt(array, x):
     """
     i = bisect.bisect_left(array, x)
     if i:
-        return array[i-1]
+        return array[i - 1]
     raise ValueError
 
 
@@ -74,7 +74,7 @@ def find_le(array, x):
     """
     i = bisect.bisect_right(array, x)
     if i:
-        return array[i-1]
+        return array[i - 1]
     raise ValueError
 
 
@@ -215,14 +215,14 @@ def find_last_true(sorted_list, true_criterion):
 
     lower, upper = 0, len(sorted_list) - 1
 
-    index = int((lower+upper)/2.0)
+    index = int((lower + upper) / 2.0)
     while 1:
         if true_criterion(sorted_list[index]):
-            if true_criterion(sorted_list[index+1]):
+            if true_criterion(sorted_list[index + 1]):
                 lower = index
-                index = int((index+upper)/2.0)
+                index = int((index + upper) / 2.0)
             else:
                 return index
         else:
             upper = index
-            index = int((lower+index)/2.0)
+            index = int((lower + index) / 2.0)

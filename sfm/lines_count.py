@@ -32,7 +32,7 @@ def count_lines(abspath):
 
 def lines_stats(dir_path, file_filter):
     """Lines count of selected files under a directory.
-    
+
     :return n_files: number of files
     :return n_lines: number of lines
     """
@@ -42,4 +42,3 @@ def lines_stats(dir_path, file_filter):
         n_files += 1
         n_lines += count_lines(p.abspath)
     return n_files, n_lines
-    

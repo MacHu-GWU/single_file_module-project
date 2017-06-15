@@ -16,7 +16,8 @@ def choose_best(text, choice, criterion=None):
 
 
 if __name__ == "__main__":
-    choice = ["Atlanta Falcons", "New Cow Jets", "Tom boy", "New York Giants", "Dallas Cowboys"]
+    choice = ["Atlanta Falcons", "New Cow Jets",
+              "Tom boy", "New York Giants", "Dallas Cowboys"]
     text = "cowboy"
     res = choose_best(text, choice)
     print(res)

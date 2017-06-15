@@ -52,14 +52,14 @@ class Timer(object):
     def __enter__(self):
         self.start()
         return self
-    
+
     def __exit__(self, *exc_info):
         self.end()
 
     @property
     def elapsed(self):
         return self._elapsed
-    
+
 
 class EasyTimer(object):
     """A Timer can measure execution time of multiple block of time, respectively.

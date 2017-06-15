@@ -5,7 +5,9 @@
 This module provide extensive class and method for the built-in Exception system.
 """
 
-import sys, traceback
+import sys
+import traceback
+
 
 def get_last_exc_info():
     """Get last raised exception, and format the error message.
@@ -21,13 +23,13 @@ def get_last_exc_info():
             code=code,
         )
         return info
-    
-    
+
+
 class ExceptionHavingDefaultMessage(Exception):
     """A Exception class with default error message.
     """
     default_message = None
-    
+
     def __str__(self):
         length = len(self.args)
         if length == 0:

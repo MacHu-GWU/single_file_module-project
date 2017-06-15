@@ -73,6 +73,7 @@ def extract_number(text):
 
     return result_new
 
+
 _regex_extract_email = re.compile(
     r"""([a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*(@|\sat\s)(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(\.|\sdot\s))+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)""")
 _regex_validate_email = re.compile(
@@ -88,7 +89,8 @@ def extract_email(text):
             if re.match(_regex_validate_email, email):
                 result.append(email)
     return result
-    
+
+
 _regex_url = re.compile(
     r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))""")
 
@@ -103,6 +105,7 @@ def extract_web_url(text):
     """
     return re.findall(_regex_web_url, text)
 
+
 _regex_date_iso = "\d{4}-\d{1,2}-\d{1,2}"
 
 
@@ -110,6 +113,7 @@ def extract_date_iso(text):
     """Extract iso date format (%yyyy-%mm-%dd) from text.
     """
     return re.findall(_regex_date_iso, text)
+
 
 _regex_date_us = "\d{1,2}/\d{1,2}/\d{2,4}"
 

@@ -4,6 +4,7 @@
 import pytest
 from sfm import ziplib
 
+
 def test_compress():
     s = \
         """
@@ -48,8 +49,8 @@ def test_compress():
         ziplib.compress(obj3, return_type="bytes"), return_type="obj")
 
     obj2_after = ziplib.compress(obj2, return_type="str")
-    assert len(obj2_after) < len(obj2)# size is reduced
-    
+    assert len(obj2_after) < len(obj2)  # size is reduced
+
 
 if __name__ == "__main__":
     import os

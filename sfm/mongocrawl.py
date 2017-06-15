@@ -37,12 +37,12 @@ class Task(ExtendedDocument):
     是已知的 (当然我们不一定需要完整的Url列表, 这一点之后再谈)。
 
     :meth:`Task.target_url`:
-    
+
     每一个Url必然是不相同的。而我们有时可以不必使用Url作为主键, 因为有时Url可以
     通过运算得出, 而不必储存完整Url占据过多的磁盘资源。
 
     :attr:`Task.status`:
-    
+
     status项标记了该资源是否被成功抓取过。初始状态下status = 0, 而再抓取过后可以
     将其修改为1。默认情况下mongocrawl只能识别0, 1两种状态。当然用户可以定义更多
     的状态码以应对不同的情况。
@@ -62,7 +62,7 @@ class Task(ExtendedDocument):
 
     meta = {"abstract": True}
 
-    use_json = None # 
+    use_json = None
 
     logger = StreamOnlyLogger()
 
@@ -134,9 +134,9 @@ class Task(ExtendedDocument):
     @classmethod
     def crawl_all(cls, use_json=True):
         """
-        
+
         **中文文档**
-        
+
         多线程爬虫。
         """
         # Add left counter
@@ -157,67 +157,65 @@ class Task(ExtendedDocument):
         """Mark a task as 'finished'.
         """
         cls.objects(_id=_id).update(status=1)
-        
+
     @classmethod
     def set_not_finished(cls, _id):
         """Mark a task as 'not finished'.
         """
         cls.objects(_id=_id).update(status=0)
-        
 
-        
+
+
 #--- Use Case ---
 # Crawl CVS store information from http://www.cvs.com/store-locator/
 if __name__ == "__main__":
     from bs4 import BeautifulSoup
     from loggerFactory import SingleFileLogger
-    
+
     domain = "http://www.cvs.com"
-    connect = mongoengine.connect("cvs") # use cvs database
-    
+    connect = mongoengine.connect("cvs")  # use cvs database
+
     class CVSTask(Task):
         meta = {"abstract": True}
-        
+
         @property
         def target_url(self):
             return domain + self._id
-    
-    
+
     class State(CVSTask):
         """A State Page.
-        
+
         Example: http://www.cvs.com/store-locator/cvs-pharmacy-locations/Virginia
         """
         name = mongoengine.StringField()
-    
+
         meta = {"collection": "state"}
-    
+
         @staticmethod
         def fetch_data(html):
             data = list()
             soup = BeautifulSoup(html)
-            
+
             div = soup.find("div", class_="states")
             for a in div.find_all("a"):
                 data.append(
                     {"href": a["href"], "name": " ".join(a.text.strip().split(" ")[:-1])})
             return data
-    
-    
+
     class City(CVSTask):
         """A City Page.
-        
+
         Example: http://www.cvs.com/store-locator/cvs-pharmacy-locations/Virginia/Alexandria
         """
         name = mongoengine.StringField()
-    
+
         meta = {"collection": "city"}
-    
+
         @staticmethod
         def fetch_data(html):
             data = list()
             soup = BeautifulSoup(html)
-            
+
             div_ = soup.find("div", class_="stores-wrap")
             for div in div_.find_all("div", class_="each-store"):
                 d = dict()
@@ -226,26 +224,25 @@ if __name__ == "__main__":
                     d["address"] = p.text.strip()
                 except:
                     pass
-    
+
                 try:
                     p = div.find("p", class_="phone-number")
                     d["phone"] = p.text.strip().split("#")[0].strip()
                     d["store_number"] = p.text.strip().split("#")[-1].strip()
                 except:
                     pass
-    
+
                 p = div.find("p", class_="directions-link")
                 a = p.find("a")
                 d["href"] = a["href"]
                 if d:
                     data.append(d)
-    
+
             return data
-    
+
     import string
     alpha_letter = set(string.ascii_letters + string.digits + " ")
-    
-    
+
     def extract_alpha_letter(text):
         """Extract only alpha and digits characters from text.
         """
@@ -254,69 +251,64 @@ if __name__ == "__main__":
             if char in alpha_letter:
                 chunks.append(char)
         return "".join(chunks)
-    
-    
+
     class Store(CVSTask):
         """A Store Page.
-        
+
         Example: http://www.cvs.com/store-locator/cvs-pharmacy-address/415+Monroe+Avenue-Alexandria-VA-22301/storeid=1410
         """
         address = mongoengine.StringField()
         phone = mongoengine.StringField()
         store_number = mongoengine.StringField()
-    
+
         meta = {"collection": "store"}
-    
+
         @staticmethod
         def fetch_data(html):
             data = dict()
             soup = BeautifulSoup(html)
-        
+
             try:
                 ul = soup.find("ul", id="serviceBadges")
                 data["services"] = [
                     extract_alpha_letter(li.text.strip()).strip() for li in ul.find_all("li")]
             except:
                 pass
-    
+
             return data
-    
-    
+
     #--- Unittest ---
     def test_State_fetch_data():
         url = "http://www.cvs.com/store-locator/cvs-pharmacy-locations/Virginia"
         html = spider.get_html(url)
         data = State.fetch_data(html)
         js.pprint(data)
-    
+
     # test_State_fetch_data()
-    
-    
+
     def test_City_fetch_data():
         url = "http://www.cvs.com/store-locator/cvs-pharmacy-locations/Virginia/Alexandria"
         html = spider.get_html(url)
         data = City.fetch_data(html)
         js.pprint(data)
-    
+
     # test_City_fetch_data()
-    
-    
+
     def test_Store_fetch_data():
         url = "http://www.cvs.com/store-locator/cvs-pharmacy-address/415+Monroe+Avenue-Alexandria-VA-22301/storeid=1410"
         html = spider.get_html(url)
         data = Store.fetch_data(html)
         js.pprint(data)
-    
+
     # test_Store_fetch_data()
-    
-    
+
     #--- Project Code ---
     def fill_state():
         """Put 51 states as entry points from
         http://www.cvs.com/store-locator/cvs-pharmacy-locations.
         """
         data = list()
-        
+
         url = "http://www.cvs.com/store-locator/cvs-pharmacy-locations"
         html = spider.get_html(url)
         soup = BeautifulSoup(html)
@@ -324,14 +316,13 @@ if __name__ == "__main__":
         for a in div.find_all("a"):
             state = State(_id=a["href"], name=a.text.strip(), status=0)
             data.append(state)
-        
+
         State.smart_insert(data)
-    
+
     # fill_state()
-    
+
     # State.crawl_all(use_json=True)
-    
-    
+
     def fill_city():
         """Take city data from state collection, and fill into city collection.
         """
@@ -344,12 +335,11 @@ if __name__ == "__main__":
             except:
                 pass
         City.smart_insert(data)
-    
+
     # fill_city()
-    
+
     # City.crawl_all(use_json=True)
-    
-    
+
     def fill_store():
         """Take city data from city collection, and fill into store collection.
         """
@@ -366,7 +356,7 @@ if __name__ == "__main__":
             except:
                 pass
         Store.smart_insert(data)
-    
+
 #     fill_store()
-    
+
 #     Store.crawl_all(use_json=True)

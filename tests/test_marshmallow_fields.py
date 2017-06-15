@@ -68,8 +68,8 @@ def test_LowerStringField():
     assert user_schema.dump({"name": ""}).data["name"] is None
     assert user_schema.dump({"name": "    "}).data["name"] is None
     assert user_schema.dump({"name": "  John  "}).data["name"] == "john"
-    
-        
+
+
 def test_UpperStringField():
     class UserSchema(Schema):
         name = marshmallow_fields.UpperStringField()
@@ -87,8 +87,8 @@ def test_UpperStringField():
     assert user_schema.dump({"name": ""}).data["name"] is None
     assert user_schema.dump({"name": "    "}).data["name"] is None
     assert user_schema.dump({"name": "  John  "}).data["name"] == "JOHN"
-    
-    
+
+
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

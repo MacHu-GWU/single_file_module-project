@@ -4,6 +4,7 @@
 import pytest
 from sfm.timer import *
 
+
 def test_Timer():
     n = 10000
     l = list(range(n))
@@ -14,7 +15,7 @@ def test_Timer():
         for index in range(n):
             l[index]
     timer.elapsed
-    
+
     # Objective Oriented
     title = "Python Style for loop"
     timer = Timer(display=True, title=title)

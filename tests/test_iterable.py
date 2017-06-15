@@ -225,15 +225,15 @@ def test_shift_and_pad():
 def test_difference():
     assert iterable.difference([1, 2, 3], 0) == [0, 0, 0]
     assert iterable.difference([1, 2, 3], 1) == [1, 1]
-    assert iterable.difference([1, 2, 3], 2) == [2,]
-    
+    assert iterable.difference([1, 2, 3], 2) == [2, ]
+
     with pytest.raises(ValueError):
         iterable.difference([1, 2, 3], -1)
-    
+
     with pytest.raises(ValueError):
         iterable.difference([1, 2, 3], 3)
-            
-            
+
+
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])

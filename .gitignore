@@ -1,5 +1,9 @@
 # User Settings
 *.zip
+*.gz
+*.csv
+*.xlsx
+*.pk
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

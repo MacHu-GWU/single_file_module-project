@@ -4,9 +4,10 @@
 import pytest
 from sfm import decorator
 
+
 def test_elapsed_printer():
     import random
-     
+
     @decorator.elapsed_printer
     def random_sorted_list(n, lower, upper):
         """Return a random sorted list
@@ -14,7 +15,7 @@ def test_elapsed_printer():
         l = [random.randint(lower, upper) for i in range(n)]
         l.sort()
         return l
-     
+
     n = 1000
     lower = 1
     upper = 9999

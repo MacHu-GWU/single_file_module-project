@@ -29,22 +29,22 @@ import collections
 
 class DictTree(object):
     """An pure python xml doc tree implementation in dictionary.
-    
+
     **中文文档**
-    
+
     internal data structure::
-    
+
         {
             "__meta__": {key: value}, # parent tree attributes
             "child_key1": ... , # child tree's key, value pair.
             "child_key2": ... ,
             ...
         }
-    
+
     对于根树而言, Key为 ``"root"``
     """
-    __slots__ = ["__data__",]
-    
+    __slots__ = ["__data__", ]
+
     def __init__(self, __data__=None, **kwargs):
         if __data__ is None:
             object.__setattr__(self, "__data__", {"__meta__": kwargs})
@@ -68,7 +68,7 @@ class DictTree(object):
 
         with open(path, "wb") as f:
             pickle.dump(self.__data__, f)
-    
+
     @staticmethod
     def load(path):
         """load DictTree from json files.
@@ -78,7 +78,7 @@ class DictTree(object):
                 return DictTree(__data__=json.loads(f.read().decode("utf-8")))
         except:
             pass
-        
+
         with open(path, "rb") as f:
             return DictTree(__data__=pickle.load(f))
 
@@ -89,7 +89,7 @@ class DictTree(object):
             return object.__getattribute__(self, "__data__")["__meta__"][attr]
         except KeyError:
             return object.__getattribute__(self, attr)
-     
+
     def __setattr__(self, attr, value):
         """
         """
@@ -98,45 +98,45 @@ class DictTree(object):
     def __setitem__(self, key, dicttree):
         if key == "__meta__":
             raise ValueError("'key' can't be '__meta__'!")
-        
+
         if isinstance(dicttree, DictTree):
             self.__data__[key] = dicttree.__data__
         else:
-            raise TypeError("attribute assignment only takes 'DictTree'.")        
-      
+            raise TypeError("attribute assignment only takes 'DictTree'.")
+
     def __getitem__(self, key):
         return DictTree(__data__=self.__data__[key])
 
     def __delitem__(self, key):
         if key == "__meta__":
             raise ValueError("'key' can't be '__meta__'!")
-        
+
         del self.__data__[key]
 
     def __len__(self):
         """Return number of child trees.
-        
+
         **中文文档**
-        
+
         返回子树的数量。
         """
         return len(self.__data__) - 1
-    
+
     def __iter__(self):
         for key in self.__data__:
             if key != "__meta__":
                 yield key
-                
+
     def keys(self):
         for key in self.__data__:
             if key != "__meta__":
                 yield key
-                
+
     def values(self):
         for key, value in self.__data__.items():
             if key != "__meta__":
                 yield DictTree(__data__=value)
-                
+
     def items(self):
         for key, value in self.__data__.items():
             if key != "__meta__":
@@ -154,15 +154,15 @@ class DictTree(object):
                 for dicttree in self.values():
                     for key in dicttree.keys_at(depth, counter):
                         yield key
-        
+
     def values_at(self, depth):
         if depth < 1:
             yield self
         else:
             for dicttree in self.values():
-                for value in dicttree.values_at(depth-1):
+                for value in dicttree.values_at(depth - 1):
                     yield value
-    
+
     def items_at(self, depth):
         if depth < 1:
             yield "__root__", self
@@ -171,7 +171,7 @@ class DictTree(object):
                 yield key, value
         else:
             for dicttree in self.values():
-                for key, value in dicttree.items_at(depth-1):
+                for key, value in dicttree.items_at(depth - 1):
                     yield key, value
 
     def length_at(self, depth):
@@ -179,17 +179,17 @@ class DictTree(object):
         """
         if depth == 0:
             return 1
-        
+
         counter = 0
-        for dicttree in self.values_at(depth-1):
+        for dicttree in self.values_at(depth - 1):
             counter += len(dicttree)
         return counter
 
     def stats(self, result=None, counter=0):
         """Display the node stats info on specific depth in this dict.
-        
+
         ::
-        
+
             [
                 {"depth": 0, "leaf": M0, "root": N0},
                 {"depth": 1, "leaf": M1, "root": N1},
@@ -199,31 +199,32 @@ class DictTree(object):
         """
         if result is None:
             result = dict()
-            
+
         if counter == 0:
             if len(self):
                 result[0] = {"depth": 0, "leaf": 0, "root": 1}
             else:
                 result[0] = {"depth": 0, "leaf": 1, "root": 0}
-            
-        counter += 1    
+
+        counter += 1
         if len(self):
-            result.setdefault(counter, {"depth": counter, "leaf": 0, "root": 0})
+            result.setdefault(
+                counter, {"depth": counter, "leaf": 0, "root": 0})
             for dicttree in self.values():
-                if len(dicttree): # root
+                if len(dicttree):  # root
                     result[counter]["root"] += 1
-                else: # leaf
+                else:  # leaf
                     result[counter]["leaf"] += 1
                 dicttree.stats(result, counter)
 
         return [
             collections.OrderedDict([
-                ("depth", info["depth"]), 
-                ("leaf", info["leaf"]), 
+                ("depth", info["depth"]),
+                ("leaf", info["leaf"]),
                 ("root", info["root"]),
             ]) for info in sorted(result.values(), key=lambda x: x["depth"])
         ]
-    
+
     def stats_at(self, depth):
         root, leaf = 0, 0
         for dicttree in self.values_at(depth):
@@ -239,33 +240,33 @@ class DictTree(object):
 if __name__ == "__main__":
     def test_performance():
         path = "test.json"
-        
+
         st = time.clock()
         d = DictTree(name=rand_str(8))
         for depth in range(6):
             for dicttree in d.values_at(depth):
                 for _ in range(10):
                     dicttree[rand_str(8)] = DictTree(name=rand_str(8))
-        print("creating elapse %.6f" % (time.clock() - st,)) # 
-                   
+        print("creating elapse %.6f" % (time.clock() - st,))
+
         st = time.clock()
         d.dump(path)
-        print("dumping elapse %.6f" % (time.clock() - st,)) 
-        
+        print("dumping elapse %.6f" % (time.clock() - st,))
+
         st = time.clock()
         d = DictTree.load(path)
         print("loading elapse %.6f" % (time.clock() - st,))
-        
+
         st = time.clock()
         ppt(d.stats())
         print("analyze elapse %.6f" % (time.clock() - st,))
-        
+
         st = time.clock()
         for depth in range(7):
             d.stats_at(depth)
         print("analyze elapse %.6f" % (time.clock() - st,))
 
-    
+
 # ....creating elapse 27.871160
 # dumping elapse 23.268375
 # loading elapse 3.634183

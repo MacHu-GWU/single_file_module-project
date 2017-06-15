@@ -18,9 +18,10 @@ if sys.version_info[0] == 2:
         izip_longest as zip_longest,
         izip as zip,
     )
+    string_types = basestring,
 else:  # in python3
     from itertools import filterfalse, zip_longest
-from sfm.packages.six import string_types
+    string_types = str,
 
 
 def flatten(iterable):

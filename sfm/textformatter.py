@@ -23,6 +23,7 @@ FUNCTION_WORD = set([
 ])
 ALPHA_DIGITS = set(string.ascii_letters + string.digits)
 
+
 def format_single_space_only(text):
     """Revise consecutive empty space to single space.
 
@@ -107,13 +108,13 @@ def format_filename(text):
 
 def format_CapitalizedWord(text):
     """
-    
+
     Example::
-    
+
         ThisIsVeryGood
-    
+
     **中文文档**
-    
+
     将文本格式化为各单词首字母大写, 拼接而成的长变量名。
     """
     text = text.strip()
@@ -133,6 +134,6 @@ def format_CapitalizedWord(text):
                     word = list()
         if len(word):
             words.append("".join(word))
-            
+
         words = [word[0].upper() + word[1:] for word in words]
         return "".join(words)

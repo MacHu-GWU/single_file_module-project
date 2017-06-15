@@ -5,7 +5,7 @@ from __future__ import print_function
 import platform
 import pytest
 from sfm.fingerprint import is_py2, fingerprint
-from sfm.packages.six import integer_types
+from sfm.pkg.six import integer_types
 
 
 def test_md5_file():
@@ -14,13 +14,13 @@ def test_md5_file():
     SYS_NAME = platform.system()
     if SYS_NAME == "Windows":
         assert fingerprint.of_file(
-            a_file) == "fefe81d42f6ba9ebe47d22d2a3068a8e"
+            a_file) == "aba28565168e25459cfe9602c547e721"
         assert fingerprint.of_file(
-            a_file, nbytes=1000) == "fefe81d42f6ba9ebe47d22d2a3068a8e"
+            a_file, nbytes=1000) == "aba28565168e25459cfe9602c547e721"
         assert fingerprint.of_file(
-            a_file, chunk_size=1) == "fefe81d42f6ba9ebe47d22d2a3068a8e"
+            a_file, chunk_size=1) == "aba28565168e25459cfe9602c547e721"
         assert fingerprint.of_file(
-            a_file, chunk_size=2) == "fefe81d42f6ba9ebe47d22d2a3068a8e"
+            a_file, chunk_size=2) == "aba28565168e25459cfe9602c547e721"
 
         assert fingerprint.of_file(
             a_file, nbytes=5) == "f35b4f5a273e9c6ce1fd034c562b4ff4"

@@ -15,7 +15,7 @@ def test_lines_stats():
         os.path.dirname(__file__), lines_count.filter_python_script)
     assert n_files >= 17
     assert n_lines >= 1096
-    
+
 
 if __name__ == "__main__":
     import os

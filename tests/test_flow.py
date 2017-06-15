@@ -14,16 +14,16 @@ def bet_and_win(lower=1, upper=100, threshold=50):
         raise Exception("%s point, You Lose!" % value)
 
 
-def test_try_ntime():    
+def test_try_ntime():
     # Successful case
     value = flow.try_ntime(10000, bet_and_win, 1, 10, 5)
     assert value > 5
-    
+
     # Unsuccessful case
     with pytest.raises(Exception):
         value = flow.try_ntime(1, bet_and_win, 1, 10000, 9999)
-    
-    
+
+
 if __name__ == "__main__":
     import os
     pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
