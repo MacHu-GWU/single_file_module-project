@@ -6,6 +6,7 @@ python:
   - "3.5"
 install:
   - pip install six
+  - pip install sqlalchemy
   - pip install pymongo
   - pip install mongoengine
   - pip install marshmallow==2.13.4
