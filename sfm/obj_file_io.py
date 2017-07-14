@@ -2,12 +2,52 @@
 # -*- coding: utf-8 -*-
 
 """
+object file io is a Python object to single file I/O framework. The word 
+'framework' means you can use any serialization/deserialization algorithm here.
+
+- dump: dump python object to a file.
+- safe_dump: add atomic writing guarantee for ``dump``.
+- load: load python object from a file. 
+
+Features:
+
+1. ``compress``: built-in compress/decompress options.
+2. ``overwrite``: an option to prevent from overwrite existing file.
+3. ``verbose``: optional built-in logger can display help infomation.
+
+Usage:
+
+suppose you have a function (dumper function, has to take python object as 
+input, and return a binary object) can dump python object to binary::
+
+    import pickle
+    
+    def dump(obj):
+        return pickle.dumps(obj)
+    
+    def load(binary):
+        return pickle.loads(binary)
+        
+You just need to add a decorator, and new function will do all magic for you:
+
+    from obj_file_io import dump_func, safe_dump_func, load_func
+
+    @dump_func
+    def dump(obj):
+        return pickle.dumps(obj)
+
+    @safe_dump_func
+    def safe_dump(obj):
+        return pickle.dumps(obj)
+        
+    @load_func
+    def load(binary):
+        return pickle.loads(binary)
+
+
 **中文文档**
 
 object file io是一个将Python对象对单个本地文件的I/O
-
-
-
 """
 
 import os
@@ -167,32 +207,54 @@ def _load(abspath,
     return obj
 
 
+def dump_func(dumper_func):
+    """A decorator for ``_dump(dumper_func=dumper_func, **kwargs)``
+    """
+    def wrapper(*args, **kwargs):
+        return _dump(*args, dumper_func=dumper_func, **kwargs)
+
+    return wrapper
+
+
+def safe_dump_func(dumper_func):
+    """A decorator for ``_safe_dump(dumper_func=dumper_func, **kwargs)``
+    """
+    def wrapper(*args, **kwargs):
+        return _safe_dump(*args, dumper_func=dumper_func, **kwargs)
+
+    return wrapper
+
+
+def load_func(loader_func):
+    """A decorator for ``_load(loader_func=loader_func, **kwargs)``
+    """
+    def wrapper(*args, **kwargs):
+        return _load(*args, loader_func=loader_func, **kwargs)
+
+    return wrapper
+
+
 if __name__ == "__main__":
     import pickle
     import functools
 
-    def pickle_dumper(obj):
+    @dump_func
+    def dump(obj):
         return pickle.dumps(obj)
 
-    def pickle_loader(b):
+    @safe_dump_func
+    def safe_dump(obj):
+        return pickle.dumps(obj)
+
+    @load_func
+    def load(b):
         return pickle.loads(b)
 
-    def test_dumper_loader():
-        obj = dict(a=1, b=2)
-        b = pickle_dumper(obj)
-        obj = pickle_loader(b)
-
-    test_dumper_loader()
-
-    def test_partial():
-        dump = functools.partial(_dump, dumper_func=pickle_dumper)
-        safe_dump = functools.partial(_safe_dump, dumper_func=pickle_dumper)
-        load = functools.partial(_load, loader_func=pickle_loader)
-
+    def test_dump_load():
         obj = dict(a=1, b=2, c=3)
         b = dump(obj, "data.pk", verbose=True)
         b = safe_dump(obj, "data.pk", verbose=True)
         obj1 = load("data.pk", verbose=True)
         assert obj == obj1
 
-    test_partial()
+    test_dump_load()

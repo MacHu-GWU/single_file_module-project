@@ -5,6 +5,22 @@
 This module is built on Python standard hashlib, provides utility method  
 to find hash value for a bytes, a string, a Python object or a file.
 
+Import this module::
+
+    >>> from sfm.fingerprint import fingerprint
+    
+Example::
+
+    >>> fingerprint.of_bytes(bytes(16))
+    >>> fingerprint.of_text("Hello World")
+    >>> fingerprint.of_pyobj(dict(a=1, b=2, c=3))
+    >>> fingerprint.of_file("fingerprint.py")
+
+You can switch the hash algorithm to use::
+    
+    >>> fingerprint.use("md5") # also "sha1", "sha256", "sha512"
+
+
 **中文文档**
 
 本模块提供了一些计算Hash值的简便方法。对于 of_pyobj()方法来说, 请注意在读写时
@@ -122,8 +138,9 @@ class FingerPrint(object):
 
         Estimate processing time on:
 
-        :param abspath: the absolute path to the file
-        :param nbytes: only has first N bytes of the file. if 0, hash all file
+        :param abspath: the absolute path to the file.
+        :param nbytes: only has first N bytes of the file. if 0, hash all file.
+        :param chunk_size: The max memory we use at one time. 
 
         CPU = i7-4600U 2.10GHz - 2.70GHz, RAM = 8.00 GB
         1 second can process 0.25GB data

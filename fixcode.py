@@ -3,10 +3,11 @@
 
 from pathlib_mate import Path
 
-dirpath_list = [
+p = Path(
+    Path(__file__).parent, 
     "sfm",
-    "tests",
-]
-for dirpath in dirpath_list:
-    p = Path(dirpath)
-    p.autopep8()
+)
+p.autopep8()
+
+p = Path(Path(__file__).parent, "tests")
+p.autopep8()

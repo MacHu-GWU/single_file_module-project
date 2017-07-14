@@ -125,10 +125,10 @@ class Base(object):
         """
         return OrderedDict(self.items())
 
-    def to_json(self):
+    def to_json(self, sort_keys=False, indent=None):
         """Export data to json. If it is json serilizable.
         """
-        return json.dumps(self.to_dict())
+        return json.dumps(self.to_dict(), sort_keys=sort_keys, indent=indent)
 
     def __eq__(self, other):
         """Equal to.
