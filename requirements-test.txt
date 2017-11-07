@@ -1,0 +1,9 @@
+pytest>=3.2.3
+pytest-cov
+
+# Optional dependencies
+Faker
+sqlalchemy
+pathlib_mate
+marshmallow
+fuzzywuzzy

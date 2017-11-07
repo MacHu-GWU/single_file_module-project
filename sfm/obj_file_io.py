@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-object file io is a Python object to single file I/O framework. The word 
+object file io is a Python object to single file I/O framework. The word
 'framework' means you can use any serialization/deserialization algorithm here.
 
 - dump: dump python object to a file.
 - safe_dump: add atomic writing guarantee for ``dump``.
-- load: load python object from a file. 
+- load: load python object from a file.
 
 Features:
 
@@ -17,17 +17,17 @@ Features:
 
 Usage:
 
-suppose you have a function (dumper function, has to take python object as 
+suppose you have a function (dumper function, has to take python object as
 input, and return a binary object) can dump python object to binary::
 
     import pickle
-    
+
     def dump(obj):
         return pickle.dumps(obj)
-    
+
     def load(binary):
         return pickle.loads(binary)
-        
+
 You just need to add a decorator, and new function will do all magic for you:
 
     from obj_file_io import dump_func, safe_dump_func, load_func
@@ -39,7 +39,7 @@ You just need to add a decorator, and new function will do all magic for you:
     @safe_dump_func
     def safe_dump(obj):
         return pickle.dumps(obj)
-        
+
     @load_func
     def load(binary):
         return pickle.loads(binary)
@@ -67,7 +67,7 @@ logger.addHandler(stream_handler)
 
 
 def prt_console(message, verbose):
-    """Print message to console, if ``verbose`` is True. 
+    """Print message to console, if ``verbose`` is True.
     """
     if verbose:
         logger.info(message)
@@ -92,9 +92,9 @@ def _dump(obj, abspath,
     :param compress: default ``False``. If True, then compress binary.
     :type compress: bool
 
-    :param overwrite: default ``False``, If ``True``, when you dump to 
-      existing file, it silently overwrite it. If ``False``, an alert 
-      message is shown. Default setting ``False`` is to prevent overwrite 
+    :param overwrite: default ``False``, If ``True``, when you dump to
+      existing file, it silently overwrite it. If ``False``, an alert
+      message is shown. Default setting ``False`` is to prevent overwrite
       file by mistake.
     :type overwrite: boolean
 
@@ -133,13 +133,13 @@ def _safe_dump(obj, abspath,
                compress=True,
                verbose=False,
                **kwargs):
-    """A stable version of :func:`._dump`, this method silently overwrite 
+    """A stable version of :func:`._dump`, this method silently overwrite
     existing file.
 
-    There's a issue with :func:`_dump`: If your program is 
-    interrupted while writing, you got an incomplete file, and you also 
-    lose the original file. So this method write json to a temporary file 
-    first, then rename to what you expect, and silently overwrite old one. 
+    There's a issue with :func:`_dump`: If your program is
+    interrupted while writing, you got an incomplete file, and you also
+    lose the original file. So this method write json to a temporary file
+    first, then rename to what you expect, and silently overwrite old one.
     This way can guarantee atomic write operation.
 
     **中文文档**
@@ -232,29 +232,3 @@ def load_func(loader_func):
         return _load(*args, loader_func=loader_func, **kwargs)
 
     return wrapper
-
-
-if __name__ == "__main__":
-    import pickle
-    import functools
-
-    @dump_func
-    def dump(obj):
-        return pickle.dumps(obj)
-
-    @safe_dump_func
-    def safe_dump(obj):
-        return pickle.dumps(obj)
-
-    @load_func
-    def load(b):
-        return pickle.loads(b)
-
-    def test_dump_load():
-        obj = dict(a=1, b=2, c=3)
-        b = dump(obj, "data.pk", verbose=True)
-        b = safe_dump(obj, "data.pk", verbose=True)
-        obj1 = load("data.pk", verbose=True)
-        assert obj == obj1
-
-    test_dump_load()

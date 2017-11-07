@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pytest
 import time
-from collections import OrderedDict
+import pytest
 from sfm import iterable
+from collections import OrderedDict
 
 
 def test_flatten():
@@ -236,4 +236,6 @@ def test_difference():
 
 if __name__ == "__main__":
     import os
-    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
+
+    basename = os.path.basename(__file__)
+    pytest.main([basename, "-s", "--tb=native"])

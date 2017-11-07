@@ -13,11 +13,3 @@ def choose_best(text, choice, criterion=None):
             return res
         else:
             return None
-
-
-if __name__ == "__main__":
-    choice = ["Atlanta Falcons", "New Cow Jets",
-              "Tom boy", "New York Giants", "Dallas Cowboys"]
-    text = "cowboy"
-    res = choose_best(text, choice)
-    print(res)

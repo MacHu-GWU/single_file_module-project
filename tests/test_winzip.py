@@ -2,18 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import os
-import time
 import pytest
 from sfm import winzip
 
 
-def test_winzip():
-    winzip.zip_a_folder(os.getcwd(), "1.zip")
-    winzip.zip_everything_in_a_folder(os.getcwd(), "2.zip")
-    winzip.zip_many_files([__file__, ], "3.zip")
+def teardown_module(module):
+    """ teardown any state that was previously setup with a setup_module
+    method.
+    """
+    import time
 
-    # temp file will be removed in 20 seconds
-    time.sleep(20.0)
+    # temp file will be removed soon
+    time.sleep(1.0)
     for p in ["1.zip", "2.zip", "3.zip"]:
         try:
             os.remove(p)
@@ -21,6 +21,14 @@ def test_winzip():
             pass
 
 
+def test_winzip():
+    winzip.zip_a_folder(os.getcwd(), "1.zip")
+    winzip.zip_everything_in_a_folder(os.getcwd(), "2.zip")
+    winzip.zip_many_files([__file__, ], "3.zip")
+
+
 if __name__ == "__main__":
     import os
-    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
+
+    basename = os.path.basename(__file__)
+    pytest.main([basename, "-s", "--tb=native"])

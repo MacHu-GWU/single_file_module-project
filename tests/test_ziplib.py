@@ -29,29 +29,43 @@ def test_compress():
     Namespaces are one honking great idea -- let's do more of those!
     """
 
-    obj1 = s.encode("utf-8")
-    obj2 = s
-    obj3 = dict(content=s)
+    obj_byte = s.encode("utf-8")
+    obj_str = s
+    obj_dict = dict(content=s)
 
-    assert obj1 == ziplib.decompress(
-        ziplib.compress(obj1, return_type="str"), return_type="bytes")
-    assert obj1 == ziplib.decompress(
-        ziplib.compress(obj1, return_type="bytes"), return_type="bytes")
+    assert obj_byte == ziplib.decompress(
+        ziplib.compress(obj_byte, return_type="str"),
+        return_type="bytes",
+    )
+    assert obj_byte == ziplib.decompress(
+        ziplib.compress(obj_byte, return_type="bytes"),
+        return_type="bytes",
+    )
 
-    assert obj2 == ziplib.decompress(
-        ziplib.compress(obj2, return_type="str"), return_type="str")
-    assert obj2 == ziplib.decompress(
-        ziplib.compress(obj2, return_type="bytes"), return_type="str")
+    assert obj_str == ziplib.decompress(
+        ziplib.compress(obj_str, return_type="str"),
+        return_type="str",
+    )
+    assert obj_str == ziplib.decompress(
+        ziplib.compress(obj_str, return_type="bytes"),
+        return_type="str",
+    )
 
-    assert obj3 == ziplib.decompress(
-        ziplib.compress(obj3, return_type="str"), return_type="obj")
-    assert obj3 == ziplib.decompress(
-        ziplib.compress(obj3, return_type="bytes"), return_type="obj")
+    assert obj_dict == ziplib.decompress(
+        ziplib.compress(obj_dict, return_type="str"),
+        return_type="obj",
+    )
+    assert obj_dict == ziplib.decompress(
+        ziplib.compress(obj_dict, return_type="bytes"),
+        return_type="obj",
+    )
 
-    obj2_after = ziplib.compress(obj2, return_type="str")
-    assert len(obj2_after) < len(obj2)  # size is reduced
+    obj2_after = ziplib.compress(obj_str, return_type="str")
+    assert len(obj2_after) < len(obj_str)  # size is reduced
 
 
 if __name__ == "__main__":
     import os
-    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
+
+    basename = os.path.basename(__file__)
+    pytest.main([basename, "-s", "--tb=native"])

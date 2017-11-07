@@ -1,9 +1,8 @@
 # User Settings
-*.zip
-*.gz
-*.csv
-*.xlsx
-*.pk
+sfm_venv/
+sfm.egg-info/
+sfm-*/
+index.rst
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

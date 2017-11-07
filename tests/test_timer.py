@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+import timeit
 from sfm.timer import *
 
 
 def test_Timer():
-    n = 10000
+    n = 1000
     l = list(range(n))
 
     title = "C++ Style for loop"
@@ -47,17 +48,25 @@ def test_EasyTimer():
 
 
 def test_timeit():
-    def func(l):
-        for index in range(len(l)):
-            item = l[index]
+    def for_loop(n):
+        try:
+            range = xrange
+        except:
+            pass
+        for _ in range(n):
+            pass
 
-    n = 1000
-    l = list(range(n))
-    kwargs = {"l": l}
+    def for_loop(n):
+        for _ in range(n):
+            pass
 
-    timeit(func, n=10, **kwargs)
+    n = 10 ** 6
+    elapsed = timeit.timeit(timeit_wrapper(for_loop, n), number=10)
+    # print(elapsed)
 
 
 if __name__ == "__main__":
     import os
-    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
+
+    basename = os.path.basename(__file__)
+    pytest.main([basename, "-s", "--tb=native"])

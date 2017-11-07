@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import time
 import pytest
 import pickle
-import functools
 from sfm.obj_file_io import dump_func, safe_dump_func, load_func
 
 
@@ -37,8 +35,15 @@ def test_dump_safe_dump_load():
     obj2 = load("data.pk.gz", decompress=True, verbose=True)
     assert obj == obj2
 
-    # temp file will be removed in 20 seconds
-    time.sleep(20.0)
+
+def teardown_module(module):
+    """ teardown any state that was previously setup with a setup_module
+    method.
+    """
+    import time
+
+    # temp file will be removed soon
+    time.sleep(1.0)
     for p in ["data.pk", "data.pk.gz"]:
         try:
             os.remove(p)
@@ -48,4 +53,6 @@ def test_dump_safe_dump_load():
 
 if __name__ == "__main__":
     import os
-    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
+
+    basename = os.path.basename(__file__)
+    pytest.main([basename, "-s", "--tb=native"])

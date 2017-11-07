@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 """
-
 **中文文档**
 
 DictTree是类似于xml的一种文档树结构的实现。
@@ -16,7 +15,7 @@ DictTree是类似于xml的一种文档树结构的实现。
 - stats(), stats_at() 返回树的基本信息统计情况。
 
 注意: 本实现性能很一般, 若你对性能有需求, 请使用xml文档树。本实现是面向对象的
-实现方式, 根据同样的思路, 还有一个函数式的实现 :mod:`~sfm.dicttree`. 缺点是操作
+实现方式, 根据同样的思路, 还有一个函数式的实现 :mod:`~sfm.dict_tree`. 缺点是操作
 比较不直观, 但是对于stats方法的性能有巨大的提升。这是因为在返回子树时候无需生成
 子树对象。虽然生成子树对象实际上仅仅是将类的属性和字典进行绑定, 但是相对于在
 循环中计数这一快速过程, 仍然是一笔不小的开销。
@@ -28,7 +27,8 @@ import collections
 
 
 class DictTree(object):
-    """An pure python xml doc tree implementation in dictionary.
+    """
+    Pure python xml doc tree implementation in dictionary.
 
     **中文文档**
 
@@ -58,7 +58,8 @@ class DictTree(object):
             return str(self.__data__)
 
     def dump(self, path):
-        """dump DictTree data to json files.
+        """
+        dump DictTree data to json files.
         """
         try:
             with open(path, "wb") as f:
@@ -71,7 +72,8 @@ class DictTree(object):
 
     @staticmethod
     def load(path):
-        """load DictTree from json files.
+        """
+        load DictTree from json files.
         """
         try:
             with open(path, "rb") as f:
@@ -83,24 +85,20 @@ class DictTree(object):
             return DictTree(__data__=pickle.load(f))
 
     def __getattribute__(self, attr):
-        """
-        """
         try:
             return object.__getattribute__(self, "__data__")["__meta__"][attr]
         except KeyError:
             return object.__getattribute__(self, attr)
 
     def __setattr__(self, attr, value):
-        """
-        """
         self.__data__["__meta__"][attr] = value
 
-    def __setitem__(self, key, dicttree):
+    def __setitem__(self, key, dict_tree):
         if key == "__meta__":
             raise ValueError("'key' can't be '__meta__'!")
 
-        if isinstance(dicttree, DictTree):
-            self.__data__[key] = dicttree.__data__
+        if isinstance(dict_tree, DictTree):
+            self.__data__[key] = dict_tree.__data__
         else:
             raise TypeError("attribute assignment only takes 'DictTree'.")
 
@@ -114,7 +112,8 @@ class DictTree(object):
         del self.__data__[key]
 
     def __len__(self):
-        """Return number of child trees.
+        """
+        Return number of child trees.
 
         **中文文档**
 
@@ -128,21 +127,34 @@ class DictTree(object):
                 yield key
 
     def keys(self):
+        """
+        Iterate keys.
+        """
         for key in self.__data__:
             if key != "__meta__":
                 yield key
 
     def values(self):
+        """
+        Iterate values.
+        """
         for key, value in self.__data__.items():
             if key != "__meta__":
                 yield DictTree(__data__=value)
 
     def items(self):
+        """
+        Iterate items.
+        :return:
+        """
         for key, value in self.__data__.items():
             if key != "__meta__":
                 yield key, DictTree(__data__=value)
 
     def keys_at(self, depth, counter=1):
+        """
+        Iterate keys at specified depth.
+        """
         if depth < 1:
             yield "__root__"
         else:
@@ -151,27 +163,33 @@ class DictTree(object):
                     yield key
             else:
                 counter += 1
-                for dicttree in self.values():
-                    for key in dicttree.keys_at(depth, counter):
+                for dict_tree in self.values():
+                    for key in dict_tree.keys_at(depth, counter):
                         yield key
 
     def values_at(self, depth):
+        """
+        Iterate values at specified depth.
+        """
         if depth < 1:
             yield self
         else:
-            for dicttree in self.values():
-                for value in dicttree.values_at(depth - 1):
+            for dict_tree in self.values():
+                for value in dict_tree.values_at(depth - 1):
                     yield value
 
     def items_at(self, depth):
+        """
+        Iterate items at specified depth.
+        """
         if depth < 1:
             yield "__root__", self
         elif depth == 1:
             for key, value in self.items():
                 yield key, value
         else:
-            for dicttree in self.values():
-                for key, value in dicttree.items_at(depth - 1):
+            for dict_tree in self.values():
+                for key, value in dict_tree.items_at(depth - 1):
                     yield key, value
 
     def length_at(self, depth):
@@ -181,12 +199,13 @@ class DictTree(object):
             return 1
 
         counter = 0
-        for dicttree in self.values_at(depth - 1):
-            counter += len(dicttree)
+        for dict_tree in self.values_at(depth - 1):
+            counter += len(dict_tree)
         return counter
 
     def stats(self, result=None, counter=0):
-        """Display the node stats info on specific depth in this dict.
+        """
+        Display the node stats info on specific depth in this dict.
 
         ::
 
@@ -210,25 +229,26 @@ class DictTree(object):
         if len(self):
             result.setdefault(
                 counter, {"depth": counter, "leaf": 0, "root": 0})
-            for dicttree in self.values():
-                if len(dicttree):  # root
+            for dict_tree in self.values():
+                if len(dict_tree):  # root
                     result[counter]["root"] += 1
                 else:  # leaf
                     result[counter]["leaf"] += 1
-                dicttree.stats(result, counter)
+                dict_tree.stats(result, counter)
 
         return [
             collections.OrderedDict([
                 ("depth", info["depth"]),
                 ("leaf", info["leaf"]),
                 ("root", info["root"]),
-            ]) for info in sorted(result.values(), key=lambda x: x["depth"])
+            ]) for info in
+            sorted(result.values(), key=lambda x: x["depth"])
         ]
 
     def stats_at(self, depth):
         root, leaf = 0, 0
-        for dicttree in self.values_at(depth):
-            if len(dicttree):
+        for dict_tree in self.values_at(depth):
+            if len(dict_tree):
                 root += 1
             else:
                 leaf += 1
@@ -238,15 +258,38 @@ class DictTree(object):
 
 
 if __name__ == "__main__":
-    def test_performance():
+    import time
+    import string
+    import random
+    from pprint import pprint
+
+    def rand_str(length):
+        return "".join(
+            [random.choice(string.ascii_letters) for _ in range(length)])
+
+    def benchmark():
+        """
+        ....creating elapse 27.871160
+        dumping elapse 23.268375
+        loading elapse 3.634183
+        [OrderedDict([('depth', 0), ('leaf', 0), ('root', 1)]),
+         OrderedDict([('depth', 1), ('leaf', 0), ('root', 10)]),
+         OrderedDict([('depth', 2), ('leaf', 0), ('root', 100)]),
+         OrderedDict([('depth', 3), ('leaf', 0), ('root', 1000)]),
+         OrderedDict([('depth', 4), ('leaf', 0), ('root', 10000)]),
+         OrderedDict([('depth', 5), ('leaf', 0), ('root', 100000)]),
+         OrderedDict([('depth', 6), ('leaf', 1000000), ('root', 0)])]
+        analyze elapse 86.070060
+        ...
+        """
         path = "test.json"
 
         st = time.clock()
         d = DictTree(name=rand_str(8))
         for depth in range(6):
-            for dicttree in d.values_at(depth):
+            for dict_tree in d.values_at(depth):
                 for _ in range(10):
-                    dicttree[rand_str(8)] = DictTree(name=rand_str(8))
+                    dict_tree[rand_str(8)] = DictTree(name=rand_str(8))
         print("creating elapse %.6f" % (time.clock() - st,))
 
         st = time.clock()
@@ -258,24 +301,10 @@ if __name__ == "__main__":
         print("loading elapse %.6f" % (time.clock() - st,))
 
         st = time.clock()
-        ppt(d.stats())
+        pprint(d.stats())
         print("analyze elapse %.6f" % (time.clock() - st,))
 
         st = time.clock()
         for depth in range(7):
             d.stats_at(depth)
         print("analyze elapse %.6f" % (time.clock() - st,))
-
-
-# ....creating elapse 27.871160
-# dumping elapse 23.268375
-# loading elapse 3.634183
-# [OrderedDict([('depth', 0), ('leaf', 0), ('root', 1)]),
-#  OrderedDict([('depth', 1), ('leaf', 0), ('root', 10)]),
-#  OrderedDict([('depth', 2), ('leaf', 0), ('root', 100)]),
-#  OrderedDict([('depth', 3), ('leaf', 0), ('root', 1000)]),
-#  OrderedDict([('depth', 4), ('leaf', 0), ('root', 10000)]),
-#  OrderedDict([('depth', 5), ('leaf', 0), ('root', 100000)]),
-#  OrderedDict([('depth', 6), ('leaf', 1000000), ('root', 0)])]
-# analyze elapse 86.070060
-# ...

@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Lazy time profiling tools.
+"""
+
 from __future__ import print_function
 import time
 
 
 class Timer(object):
-    """A context manager style timer to measure execution time.
+    """
+    A context manager style timer to measure execution time.
 
     **中文文档**
 
@@ -112,30 +117,17 @@ class EasyTimer(object):
         self.records = list()
 
 
-def timeit(func, n, display=True, title=None, *args, **kwargs):
-    """Measure a function's execution time, repeat n times and take the average.
-
-    **中文文档**
-
-    一个测试函数运行时间的小函数, 用于重复运行某函数若干次, 返回运行时间的
-    平均值。
-
-    :param func: 待测试的函数
-    :param n: 重复的次数
-    :param display: 是否打印运行时间
-    :param template: 打印信息的模板
-    :param args, kwargs: 待测函数的参数
-
-    :returns elapsed: 运行所使用的时间
+def timeit_wrapper(func, *args, **kwargs):
     """
-    template = "elapsed {elapsed:.6f} second, repeat {n} times."
-    if title:
-        template = title + ": " + template
+    Wrapper function makes ``timeit.timeit`` easier to use.
 
-    st = time.clock()
-    for i in range(n):
-        func(*args, **kwargs)
-    elapsed = (time.clock() - st) / n
-    if display:
-        print(template.format(elapsed=elapsed, n=n))
-    return elapsed
+    Usage::
+
+        >>> import timeit
+        >>> def func(*args, **kwargs): pass
+        >>> timeit.timeit(timeit_wrapper(func, *args, **kwargs), number=10)
+        0.000153
+    """
+    def wrapper():
+        return func(*args, **kwargs)
+    return wrapper

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-collection of usefule decorator.
+collection of useful decorator.
 """
 
 from __future__ import print_function
@@ -38,6 +38,7 @@ def elapsed_printer(func):
 
     此包装器可以打印函数的输入参数, 以及运行时间。
     """
+
     def _wrapper(*args, **kwargs):
         print(">>> %s # Running ..." %
               _text_of_func_args_and_kwargs(func, args, kwargs))
@@ -58,10 +59,12 @@ def run_if_is_main(__name__):
     此装饰器能够让函数自动只在自己是以主脚本进行时才运行, 否则直接返回None。
     此装饰器在pytest下无效。
     """
+
     def _run_if_is_main(func):
         def _wrapper(*args, **kwargs):
             if __name__ == "__main__":
                 return func(*args, **kwargs)
+
         return _wrapper
 
     return _run_if_is_main

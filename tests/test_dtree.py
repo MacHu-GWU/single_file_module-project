@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-import random
-import string
-from pprint import pprint as ppt
+import pytest
 from sfm.dtree import DictTree
-
 
 dt = DictTree(name="United State")
 dt["MD"] = DictTree(name="Maryland")
@@ -98,7 +94,7 @@ def test_mutable():
 
     **中文文档**
 
-    测试对子树的修改, 是不是也会修改母树。(应该是会)
+    测试对子树的修改, 是不是也会修改母树。(因为都是Mutable的对象, 所以应该会)
     """
     usa = DictTree(name="USA", pop=200 * 10 ** 6)  # 创建母树
     usa["VA"] = DictTree(name="VA", pop=3 * 10 ** 6)  # 创建子树
@@ -125,10 +121,8 @@ def test_stats_at():
     assert result[2]["root"] == 0
 
 
-def rand_str(length):
-    return "".join([random.choice(options) for _ in range(length)])
-
-
 if __name__ == "__main__":
     import os
-    pytest.main([os.path.basename(__file__), "--tb=native", "-s", ])
+
+    basename = os.path.basename(__file__)
+    pytest.main([basename, "-s", "--tb=native"])

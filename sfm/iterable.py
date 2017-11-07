@@ -3,9 +3,6 @@
 
 """
 This module provides plenty of useful functions for iterable object manipulation.
-
-**中文文档**
-
 """
 
 import sys

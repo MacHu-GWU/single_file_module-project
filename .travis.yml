@@ -1,22 +1,21 @@
 language: python
+
 python:
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
+
 install:
-  - pip install six
-  - pip install sqlalchemy
-  - pip install pymongo
-  - pip install mongoengine
-  - pip install marshmallow==2.13.4
-  - pip install pathlib_mate==0.0.9
-  - pip install rolex
-  - pip install faker
-  - pip install . # Install it self
-  - pip install --upgrade pytest
-script: py.test
+  - pip install --editable . # Install it self
+  - pip install -r requirements-test.txt # Install test dependencies
+  - pip install codecov # Install coveralls
+
+script:
+  - pytest tests --cov=sfm # Run unittest
+
 notifications:
-  slack:
-    on_success: never
-    on_failure: never
+  email: false # Mute email notification
+
+after_success:
+  - codecov # travis-ci will transfer data to codecov after success
