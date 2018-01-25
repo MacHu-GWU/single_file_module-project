@@ -37,12 +37,27 @@ def test_ExceptionHavingDefaultMessage():
         str(e)
 
 
-def test_get_last_exc_info():
+def test_ErrorTraceBackChain():
+    def inner():
+        raise ValueError("inner exception")
+
+    def outer():
+        inner()
+
     try:
-        {"a": 1}["b"]
-    except Exception as e:
-        info = em.get_last_exc_info()
-#         print(info)
+        outer()
+    except:
+        etbc = em.ErrorTraceBackChain.get_last_exc_info()
+        assert len(etbc) == 3
+
+        assert etbc.raised_error.exc_type == ValueError
+        assert etbc.raised_error.func_name == "test_ErrorTraceBackChain"
+        assert etbc.raised_error.code == "outer()"
+
+        assert etbc.source_error.exc_type == ValueError
+        assert etbc.source_error.func_name == "inner"
+        assert etbc.source_error.code == 'raise ValueError("inner exception")'
+        import traceback
 
 
 if __name__ == "__main__":

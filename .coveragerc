@@ -4,6 +4,7 @@
 omit =
     sfm/pkg/*
     sfm/zzz_ezinstall.py
+    sfm/matplot_mate.py
 
 [report]
 # Regexes for lines to exclude from consideration
