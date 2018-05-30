@@ -42,12 +42,12 @@ def load_pk(b):
     return pickle.loads(b)
 
 
-@dump_func(serializer_type="binary")
+@dump_func(serializer_type="str")
 def dump_js(obj):
     return json.dumps(obj, ensure_ascii=False)
 
 
-@load_func(serializer_type="binary")
+@load_func(serializer_type="str")
 def load_js(s):
     return json.loads(s)
 
