@@ -53,10 +53,11 @@ object file io是一个将Python对象对单个本地文件的I/O
 import os
 import time
 import zlib
-import base64
+import six
 import shutil
 import logging
 import inspect
+from atomicwrites import atomic_write
 
 # logging util
 logger = logging.getLogger()
@@ -73,8 +74,13 @@ def prt_console(message, verbose):
         logger.info(message)
 
 
-# dump, safe_dump, load
-def _dump(obj, abspath,
+def _check_serializer_type(serializer_type):
+    if serializer_type not in ["binary", "str"]:
+        raise ValueError("serializer_type has to be one of 'binary' or 'str'!")
+
+
+# dump, load
+def _dump(obj, abspath, serializer_type,
           dumper_func=None,
           compress=True,
           overwrite=False,
@@ -85,8 +91,11 @@ def _dump(obj, abspath,
     :param abspath: The file path you want dump to.
     :type abspath: str
 
+    :param serializer_type: 'binary' or 'str'.
+    :type serializer_type: str
+
     :param dumper_func: A dumper function that takes an object as input, return
-        binary.
+        binary or string.
     :type dumper_func: callable function
 
     :param compress: default ``False``. If True, then compress binary.
@@ -101,6 +110,8 @@ def _dump(obj, abspath,
     :param verbose: default True, help-message-display trigger.
     :type verbose: boolean
     """
+    _check_serializer_type(serializer_type)
+
     if not inspect.isfunction(dumper_func):
         raise TypeError("dumper_func has to be a function take object as input "
                         "and return binary!")
@@ -116,56 +127,28 @@ def _dump(obj, abspath,
 
     st = time.clock()
 
-    b = dumper_func(obj, **kwargs)
+    b_or_str = dumper_func(obj, **kwargs)
+    if serializer_type is "str":
+        b = b_or_str.encode("utf-8")
+    else:
+        b = b_or_str
+
     if compress:
         b = zlib.compress(b)
-    with open(abspath, "wb") as f:
+
+    with atomic_write(abspath, overwrite=overwrite, mode="wb") as f:
         f.write(b)
 
     elapsed = time.clock() - st
     prt_console("    Complete! Elapse %.6f sec." % elapsed, verbose)
 
-    return b
+    if serializer_type is "str":
+        return b_or_str
+    else:
+        return b
 
 
-def _safe_dump(obj, abspath,
-               dumper_func=None,
-               compress=True,
-               verbose=False,
-               **kwargs):
-    """A stable version of :func:`._dump`, this method silently overwrite
-    existing file.
-
-    There's a issue with :func:`_dump`: If your program is
-    interrupted while writing, you got an incomplete file, and you also
-    lose the original file. So this method write json to a temporary file
-    first, then rename to what you expect, and silently overwrite old one.
-    This way can guarantee atomic write operation.
-
-    **中文文档**
-
-    在对文件进行写入时, 如果程序中断, 则会留下一个不完整的文件。如果使用了
-    覆盖式写入, 则我们即没有得到新文件, 同时也丢失了原文件。所以为了保证
-    写操作的原子性(要么全部完成, 要么全部都不完成), 更好的方法是: 首先将
-    文件写入一个临时文件中, 完成后再讲文件重命名, 覆盖旧文件。这样即使中途
-    程序被中断, 也仅仅是留下了一个未完成的临时文件而已, 不会影响原文件。
-    """
-    abspath_temp = "%s.tmp" % abspath
-    b = _dump(
-        obj,
-        abspath_temp,
-        dumper_func=dumper_func,
-        compress=compress,
-        overwrite=True,
-        verbose=verbose,
-        **kwargs
-    )
-    shutil.move(abspath_temp, abspath)
-
-    return b
-
-
-def _load(abspath,
+def _load(abspath, serializer_type,
           loader_func=None,
           decompress=True,
           verbose=False,
@@ -174,6 +157,9 @@ def _load(abspath,
 
     :param abspath: The file path you want load from.
     :type abspath: str
+
+    :param serializer_type: 'binary' or 'str'.
+    :type serializer_type: str
 
     :param loader_func: A loader function that takes binary as input, return
         an object.
@@ -185,6 +171,8 @@ def _load(abspath,
     :param verbose: default True, help-message-display trigger.
     :type verbose: boolean
     """
+    _check_serializer_type(serializer_type)
+
     if not inspect.isfunction(loader_func):
         raise TypeError("loader_func has to be a function take binary as input "
                         "and return an object!")
@@ -199,7 +187,11 @@ def _load(abspath,
         b = f.read()
         if decompress:
             b = zlib.decompress(b)
-    obj = loader_func(b, **kwargs)
+
+    if serializer_type is "str":
+        obj = loader_func(b.decode("utf-8"), **kwargs)
+    else:
+        obj = loader_func(b, **kwargs)
 
     elapsed = time.clock() - st
     prt_console("    Complete! Elapse %.6f sec." % elapsed, verbose)
@@ -207,28 +199,35 @@ def _load(abspath,
     return obj
 
 
-def dump_func(dumper_func):
+def dump_func(serializer_type):
     """A decorator for ``_dump(dumper_func=dumper_func, **kwargs)``
     """
-    def wrapper(*args, **kwargs):
-        return _dump(*args, dumper_func=dumper_func, **kwargs)
 
-    return wrapper
+    def outer_wrapper(dumper_func):
+        def wrapper(*args, **kwargs):
+            return _dump(
+                *args,
+                dumper_func=dumper_func, serializer_type=serializer_type,
+                **kwargs
+            )
+
+        return wrapper
+
+    return outer_wrapper
 
 
-def safe_dump_func(dumper_func):
-    """A decorator for ``_safe_dump(dumper_func=dumper_func, **kwargs)``
-    """
-    def wrapper(*args, **kwargs):
-        return _safe_dump(*args, dumper_func=dumper_func, **kwargs)
-
-    return wrapper
-
-
-def load_func(loader_func):
+def load_func(serializer_type):
     """A decorator for ``_load(loader_func=loader_func, **kwargs)``
     """
-    def wrapper(*args, **kwargs):
-        return _load(*args, loader_func=loader_func, **kwargs)
 
-    return wrapper
+    def outer_wrapper(loader_func):
+        def wrapper(*args, **kwargs):
+            return _load(
+                *args,
+                loader_func=loader_func, serializer_type=serializer_type,
+                **kwargs
+            )
+
+        return wrapper
+
+    return outer_wrapper

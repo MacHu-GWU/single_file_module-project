@@ -9,7 +9,7 @@ import heapq
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import create_engine, MetaData, Table, Column, Index
 from sqlalchemy import String, Float, PickleType
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_
 
 
 AVG_EARTH_RADIUS = 6371  # in km

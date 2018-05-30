@@ -7,3 +7,4 @@ sqlalchemy
 pathlib_mate
 marshmallow
 fuzzywuzzy
+atomicwrites==1.1.5

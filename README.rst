@@ -27,10 +27,7 @@ Quick Links
 ------------------------------------------------------------------------------
 
 - .. image:: https://img.shields.io/badge/Link-Document-red.svg
-      :target: http://www.wbh-doc.com.s3.amazonaws.com/sfm/index.html
-
-- .. image:: https://img.shields.io/badge/Link-API_Reference_and_Source_Code-red.svg
-      :target: http://www.wbh-doc.com.s3.amazonaws.com/sfm/py-modindex.html
+      :target: https://github.com/MacHu-GWU/single_file_module-project
 
 - .. image:: https://img.shields.io/badge/Link-Install-red.svg
       :target: `install`_
