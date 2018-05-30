@@ -53,8 +53,6 @@ object file io是一个将Python对象对单个本地文件的I/O
 import os
 import time
 import zlib
-import six
-import shutil
 import logging
 import inspect
 from atomicwrites import atomic_write
