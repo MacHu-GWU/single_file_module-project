@@ -83,10 +83,6 @@ class TestSerialTimer(object):
 
 def test_timeit():
     def for_loop(n):
-        try:
-            range = xrange
-        except:
-            pass
         for _ in range(n):
             pass
 
