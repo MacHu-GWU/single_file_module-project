@@ -8,6 +8,7 @@ omit =
     sfm/docs/*
     sfm/tests/*
     sfm/handlers/*
+    sfm/matplot_mate.py
 
 [report]
 # Regexes for lines to exclude from consideration

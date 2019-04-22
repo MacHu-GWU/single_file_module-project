@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import os
+import json
 import pytest
 from sfm.dtree import DictTree, DATA, META, KEY, ROOT
+
+TEST_FILE = os.path.join(os.path.dirname(__file__), "dtree_usa.json")
+
+
+def teardown_module(module):
+    if os.path.exists(TEST_FILE):
+        os.remove(TEST_FILE)
 
 
 class TestDictTree(object):
@@ -17,6 +26,8 @@ class TestDictTree(object):
     dt_USA["VA"]["Arlington"] = DictTree(name="Arlington", zipcode="22202")
     dt_FAIRFAX = DictTree(name="Fairfax", zipcode="20030")
     dt_USA["VA"]["Fairfax"] = dt_FAIRFAX
+
+    dt_USA = DictTree(__data__=json.loads(str(dt_USA)))
 
     def test_key(self):
         dt = DictTree(name="USA")
@@ -52,7 +63,7 @@ class TestDictTree(object):
         assert self.dt_USA["MD"]["College Park"].zipcode == "20740"
         assert self.dt_USA["VA"]["Arlington"].zipcode == "22202"
 
-    def test_setitem_getitem(self):
+    def test_setitem_getitem_delitem(self):
         dt = DictTree()
         dt.name = "USA"
 
@@ -62,6 +73,19 @@ class TestDictTree(object):
         assert dt["MD"].__data__ == dt_MD.__data__
         assert dt["MD"]._key() == "MD"
         assert dt_MD._key() == "MD"
+
+        assert "VA" not in dt
+        dt_VA = DictTree(name="Virginia")
+        assert dt_VA._key() == ROOT
+
+        dt["VA"] = dt_VA
+        assert dt_VA._key() == "VA"
+        assert "VA" in dt
+
+        del dt["VA"]
+        assert "VA" not in dt
+        assert dt_VA._key() == ROOT
+
 
     def test_iter(self):
         keys = list(self.dt_USA.keys())
@@ -167,6 +191,27 @@ class TestDictTree(object):
         assert result[2]["depth"] == 2
         assert result[2]["leaf"] == 4
         assert result[2]["root"] == 0
+
+        root, leaf, total = self.dt_USA.stats_at(0)
+        assert (root, leaf, total) == (1, 0, 1)
+
+        root, leaf, total = self.dt_USA.stats_at(1)
+        assert (root, leaf, total) == (2, 0, 2)
+
+        root, leaf, total = self.dt_USA.stats_at(2)
+        assert (root, leaf, total) == (0, 4, 4)
+
+    def test_dump_load(self):
+        from datetime import datetime
+
+        self.dt_USA.dump(TEST_FILE)
+        dt_USA = DictTree.load(TEST_FILE)
+        assert self.dt_USA.__data__ == dt_USA.__data__
+
+        dt1 = DictTree(create_at=datetime.utcnow())
+        dt1.dump(TEST_FILE)
+        dt2 = DictTree.load(TEST_FILE)
+        assert dt1.__data__ == dt2.__data__
 
 
 if __name__ == "__main__":

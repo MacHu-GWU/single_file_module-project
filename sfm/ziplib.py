@@ -59,11 +59,11 @@ def compress(obj, level=6, return_type="bytes"):
         base64.b64encode bytes in utf-8 string.
     """
     if isinstance(obj, binary_type):
-        b = zlib.compress(obj, level)
+        b = _compress_bytes(obj, level)
     elif isinstance(obj, string_types):
-        b = zlib.compress(obj.encode("utf-8"), level)
+        b = _compress_str(obj, level)
     else:
-        b = zlib.compress(pickle.dumps(obj, protocol=2), level)
+        b = _compress_obj(obj, level)
 
     if return_type == "bytes":
         return b

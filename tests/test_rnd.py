@@ -14,6 +14,7 @@ def test_rnd():
     rand_email()
     rand_article()
 
+    set_locale("en-US")
     first_name()
     last_name()
     name()

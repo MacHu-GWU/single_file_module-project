@@ -15,7 +15,7 @@ def sleep_random_time(min=0, max=0.1):
 class TestDateTimeTimer(object):
     def test(self):
         # usage1
-        timer = TimeTimer(title="basic DateTimeTimer test")
+        timer = DateTimeTimer(title="basic DateTimeTimer test")
         sleep_random_time()
         timer.end()
 

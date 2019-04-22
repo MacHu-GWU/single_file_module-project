@@ -111,7 +111,7 @@ def rand_email():
         Z4Lljcbdw7m@npa.net
     """
     name = rand_str(random.randint(4, 14), string.ascii_lowercase) + \
-        rand_str(random.randint(1, 4), string.digits)
+           rand_str(random.randint(1, 4), string.digits)
     domain = rand_str(random.randint(2, 10), string.ascii_lowercase)
     surfix = random.choice(DOMAIN_SURFIX)
     return "%s@%s.%s" % (name, domain, surfix)
@@ -138,16 +138,18 @@ def rand_article(num_p=(4, 10), num_s=(2, 15), num_w=(5, 40)):
     return "\n\n".join(article)
 
 
-#--- Just a simple API call for faker ---
+# --- Just a simple API call for faker ---
 try:
     import faker
+
 
     class SimpleFaker(object):
         def __init__(self, locale="en_US"):
             self.fake = faker.Factory.create(locale)
 
+
     simple_faker = SimpleFaker()
-except:
+except:  # pragma: no cover
     pass
 
 

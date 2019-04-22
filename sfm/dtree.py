@@ -20,6 +20,7 @@ DictTree是类似于xml的一种文档树结构的实现。
 循环中计数这一快速过程, 仍然是一笔不小的开销。
 """
 
+from __future__ import print_function, unicode_literals
 import json
 import pickle
 import collections
@@ -126,19 +127,19 @@ class DictTree(object):
         with open(path, "wb") as f:
             pickle.dump(self.__data__, f)
 
-    @staticmethod
-    def load(path):
+    @classmethod
+    def load(cls, path):
         """
         load DictTree from json files.
         """
         try:
             with open(path, "rb") as f:
-                return DictTree(__data__=json.loads(f.read().decode("utf-8")))
+                return cls(__data__=json.loads(f.read().decode("utf-8")))
         except:
             pass
 
         with open(path, "rb") as f:
-            return DictTree(__data__=pickle.load(f))
+            return cls(__data__=pickle.load(f))
 
     def __getattribute__(self, attr):
         try:
@@ -150,7 +151,7 @@ class DictTree(object):
         self.__data__[META][attr] = value
 
     def __setitem__(self, key, dict_tree):
-        if key == META:
+        if key in (META, KEY):
             raise ValueError("'key' can't be '__meta__'!")
 
         if isinstance(dict_tree, DictTree):
@@ -163,10 +164,14 @@ class DictTree(object):
         return DictTree(__data__=self.__data__[key])
 
     def __delitem__(self, key):
-        if key == META:
+        if key in (META, KEY):
             raise ValueError("'key' can't be '__meta__'!")
 
+        self.__data__[key][KEY] = ROOT
         del self.__data__[key]
+
+    def __contains__(self, item):
+        return item in self.__data__
 
     def __len__(self):
         """
@@ -305,7 +310,7 @@ class DictTree(object):
             sorted(result.values(), key=lambda x: x["depth"])
         ]
 
-    def stats_at(self, depth):
+    def stats_at(self, depth, display=False):
         root, leaf = 0, 0
         for dict_tree in self.values_at(depth):
             if len(dict_tree):
@@ -313,8 +318,10 @@ class DictTree(object):
             else:
                 leaf += 1
         total = root + leaf
-        print("On depth %s, having %s root nodes, %s leaf nodes. "
-              "%s nodes in total." % (depth, root, leaf, total))
+        if display:  # pragma: no cover
+            print("On depth %s, having %s root nodes, %s leaf nodes. "
+                  "%s nodes in total." % (depth, root, leaf, total))
+        return root, leaf, total
 
 
 if __name__ == "__main__":

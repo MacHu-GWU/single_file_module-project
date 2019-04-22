@@ -26,15 +26,14 @@ You can switch the hash algorithm to use::
 均使用相同的Python大版本(2/3)。
 """
 
-import os
 from six import PY2, PY3, text_type, binary_type
 import pickle
 import hashlib
 
-if PY2:
+if PY2:  # pragma: no cover
     default_pk_protocol = 2
-elif PY3:
-    default_pk_protocol = 3
+elif PY3:  # pragma: no cover
+    default_pk_protocol = 2
 
 
 class FingerPrint(object):
@@ -66,6 +65,10 @@ class FingerPrint(object):
     }
 
     def __init__(self, algorithm="md5", pk_protocol=default_pk_protocol):
+        self.hash_algo = hashlib.md5
+        self.return_int = False
+        self.pk_protocol = 2
+
         self.use(algorithm)
         self.set_return_str()
         self.set_pickle_protocol(pk_protocol)
@@ -75,7 +78,7 @@ class FingerPrint(object):
         """
         try:
             self.hash_algo = self._mapper[algorithm.strip().lower()]
-        except IndexError:
+        except IndexError:  # pragma: no cover
             template = "'%s' is not supported, try one of %s."
             raise ValueError(template % (algorithm, list(self._mapper)))
 
@@ -137,6 +140,12 @@ class FingerPrint(object):
         """
         self.set_pickle_protocol(3)
 
+    def digest(self, hash_method):
+        if self.return_int:
+            return int(hash_method.hexdigest(), 16)
+        else:
+            return hash_method.hexdigest()
+
     # hash function
     def of_bytes(self, py_bytes):
         """
@@ -147,10 +156,7 @@ class FingerPrint(object):
         """
         m = self.hash_algo()
         m.update(py_bytes)
-        if self.return_int:
-            return int(m.hexdigest(), 16)
-        else:
-            return m.hexdigest()
+        return self.digest(m)
 
     def of_text(self, text, encoding="utf-8"):
         """
@@ -162,10 +168,7 @@ class FingerPrint(object):
         """
         m = self.hash_algo()
         m.update(text.encode(encoding))
-        if self.return_int:
-            return int(m.hexdigest(), 16)
-        else:
-            return m.hexdigest()
+        return self.digest(m)
 
     def of_pyobj(self, pyobj):
         """
@@ -176,10 +179,7 @@ class FingerPrint(object):
         """
         m = self.hash_algo()
         m.update(pickle.dumps(pyobj, protocol=self.pk_protocol))
-        if self.return_int:
-            return int(m.hexdigest(), 16)
-        else:
-            return m.hexdigest()
+        return self.digest(m)
 
     def of_file(self, abspath, nbytes=0, chunk_size=1024):
         """
