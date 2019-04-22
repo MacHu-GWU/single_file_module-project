@@ -2,12 +2,7 @@
 sfm_venv/
 sfm.egg-info/
 sfm-*/
-index.rst
-*.json
-*.json.gz
-*.pk
-*.pk.gz
-*.txt
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -75,7 +70,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/build/
 
 # PyBuilder
 target/
@@ -95,6 +90,8 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
+
+
 
 # Spyder project settings
 .spyderproject
