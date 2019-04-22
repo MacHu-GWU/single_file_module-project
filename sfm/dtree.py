@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -25,17 +24,74 @@ import json
 import pickle
 import collections
 
+DATA = "__data__"
+META = "__meta__"
+KEY = "__key__"
+ROOT = "__root__"
+
 
 class DictTree(object):
     """
     Pure python xml doc tree implementation in dictionary.
+
+    Usage::
+
+        >>> dt = DictTree(name="USA")
+        >>> dt["MD"] = DictTree(name="Maryland")
+        >>> dt["VA"] = DictTree(name="Virginia")
+
+        >>> dt["MD"]["Gaithersburg"] = DictTree(name="Gaithersburg", zipcode="20878")
+        >>> dt["MD"]["College Park"] = DictTree(name="College Park", zipcode="20740")
+
+        >>> dt["VA"]["Arlington"] = DictTree(name="Arlington", zipcode="22202")
+        >>> dt["VA"]["Fairfax"] = DictTree(name="Fairfax", zipcode="20030")
+
+        # visit tree metadata
+        >>> dt.name
+        USA
+        >>> dt["MD"].name
+        Maryland
+
+        # visit node
+        >>> dt["MD"]
+        {
+            "College Park": {
+                "__key__": "College Park",
+                "__meta__": {
+                    "name": "College Park",
+                    "zipcode": "20740"
+                }
+            },
+            "Gaithersburg": {
+                "__key__": "Gaithersburg",
+                "__meta__": {
+                    "name": "Gaithersburg",
+                    "zipcode": "20878"
+                }
+            },
+            "__key__": "MD",
+            "__meta__": {
+                "name": "Maryland"
+            }
+        }
+
+        # visit key
+        >>> dt_MD = dt["MD"]
+        >>> dt_MD._key()
+        MD
+
+        >>> list(dt.keys_at(depth=1)) # or values_at(depth), items_at(depth)
+        ['MD', 'VA']
+
+        >>> list(dt.keys_at(depth=2))
+        ['Gaithersburg', 'College Park', 'Arlington', 'Fairfax']
 
     **中文文档**
 
     internal data structure::
 
         {
-            "__meta__": {key: value}, # parent tree attributes
+            META: {key: value}, # parent tree attributes
             "child_key1": ... , # child tree's key, value pair.
             "child_key2": ... ,
             ...
@@ -43,13 +99,13 @@ class DictTree(object):
 
     对于根树而言, Key为 ``"root"``
     """
-    __slots__ = ["__data__", ]
+    __slots__ = [DATA, ]
 
     def __init__(self, __data__=None, **kwargs):
         if __data__ is None:
-            object.__setattr__(self, "__data__", {"__meta__": kwargs})
+            object.__setattr__(self, DATA, {META: kwargs, KEY: ROOT})
         else:
-            object.__setattr__(self, "__data__", __data__)
+            object.__setattr__(self, DATA, __data__)
 
     def __str__(self):
         try:
@@ -86,18 +142,19 @@ class DictTree(object):
 
     def __getattribute__(self, attr):
         try:
-            return object.__getattribute__(self, "__data__")["__meta__"][attr]
+            return object.__getattribute__(self, DATA)[META][attr]
         except KeyError:
             return object.__getattribute__(self, attr)
 
     def __setattr__(self, attr, value):
-        self.__data__["__meta__"][attr] = value
+        self.__data__[META][attr] = value
 
     def __setitem__(self, key, dict_tree):
-        if key == "__meta__":
+        if key == META:
             raise ValueError("'key' can't be '__meta__'!")
 
         if isinstance(dict_tree, DictTree):
+            dict_tree.__data__[KEY] = key
             self.__data__[key] = dict_tree.__data__
         else:
             raise TypeError("attribute assignment only takes 'DictTree'.")
@@ -106,7 +163,7 @@ class DictTree(object):
         return DictTree(__data__=self.__data__[key])
 
     def __delitem__(self, key):
-        if key == "__meta__":
+        if key == META:
             raise ValueError("'key' can't be '__meta__'!")
 
         del self.__data__[key]
@@ -119,19 +176,22 @@ class DictTree(object):
 
         返回子树的数量。
         """
-        return len(self.__data__) - 1
+        return len(self.__data__) - 2
 
     def __iter__(self):
         for key in self.__data__:
-            if key != "__meta__":
+            if key not in (META, KEY):
                 yield key
+
+    def _key(self):
+        return self.__data__[KEY]
 
     def keys(self):
         """
         Iterate keys.
         """
         for key in self.__data__:
-            if key != "__meta__":
+            if key not in (META, KEY):
                 yield key
 
     def values(self):
@@ -139,7 +199,7 @@ class DictTree(object):
         Iterate values.
         """
         for key, value in self.__data__.items():
-            if key != "__meta__":
+            if key not in (META, KEY):
                 yield DictTree(__data__=value)
 
     def items(self):
@@ -148,7 +208,7 @@ class DictTree(object):
         :return:
         """
         for key, value in self.__data__.items():
-            if key != "__meta__":
+            if key not in (META, KEY):
                 yield key, DictTree(__data__=value)
 
     def keys_at(self, depth, counter=1):
@@ -156,7 +216,7 @@ class DictTree(object):
         Iterate keys at specified depth.
         """
         if depth < 1:
-            yield "__root__"
+            yield ROOT
         else:
             if counter == depth:
                 for key in self.keys():
@@ -183,7 +243,7 @@ class DictTree(object):
         Iterate items at specified depth.
         """
         if depth < 1:
-            yield "__root__", self
+            yield ROOT, self
         elif depth == 1:
             for key, value in self.items():
                 yield key, value
@@ -258,14 +318,17 @@ class DictTree(object):
 
 
 if __name__ == "__main__":
+    import os
     import time
     import string
     import random
     from pprint import pprint
 
+
     def rand_str(length):
         return "".join(
             [random.choice(string.ascii_letters) for _ in range(length)])
+
 
     def benchmark():
         """
@@ -308,3 +371,7 @@ if __name__ == "__main__":
         for depth in range(7):
             d.stats_at(depth)
         print("analyze elapse %.6f" % (time.clock() - st,))
+
+        os.remove(path)
+
+    # benchmark()

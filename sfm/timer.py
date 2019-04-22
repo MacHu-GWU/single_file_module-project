@@ -1,120 +1,172 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
 Lazy time profiling tools.
+
+**中文文档**
+
+- time.clock() 返回的是 **该进程从运行起** 的 CPU 时钟.
+- time.time() 返回的是 从 EPOCH 开始起的秒数, 不同系统上的精确度不同.
+- datetime.datetime.utcnow() 返回的是从 EPOCH 开始起的时间对象
 """
 
 from __future__ import print_function
 import time
+from datetime import datetime
 
 
-class Timer(object):
+# print((datetime.utcnow() - datetime.utcnow()).total_seconds())
+
+class BaseTimer(object):
     """
-    A context manager style timer to measure execution time.
-
-    **中文文档**
-
-    一个简单的计时器, 提供了Context Manager语法。
-
-    Example1::
-
-        # Context Manager
-        n = 1000 * 1000
-        l = list(range(n))
-
-        title = "C++ Style for loop"
-        # Context Manager Syntax
-        with Timer(title, display=True) as timer:
-            for index in range(n):
-                l[index]
-
-    请注意, 该Timer的实现方式仅仅是用两个time.clock()相减, 效果并不会太好。
+    Abstract timer class.
     """
 
-    def __init__(self, display=True, title=None):
-        self._start = None
-        self._end = None
-        self._elapsed = None
-        self._display = display
-        self._template = "elapsed {elapsed:.6f} second."
-        self._title = title
-        if title:
-            self._template = title + ": " + self._template
+    _base_log_msg_tpl = "from {start_time} to {end_time} elapsed {elapsed:.6f} second."
+
+    __slots__ = ["title", "start_time", "end_time", "elapsed", "display", "log_msg_tpl"]
+
+    def __init__(self, title=None, display=True, start=True):
+        """
+        """
+        self.title = title
+        self.start_time = None
+        self.end_time = None
+        self.elapsed = None
+        self.display = display
+
+        if title is not None:
+            self.log_msg_tpl = title + ": " + self._base_log_msg_tpl
+        else:
+            self.log_msg_tpl = self._base_log_msg_tpl
+
+        if start is True:
+            self.start()
+
+    def __str__(self):
+        return self.log_msg_tpl.format(
+            start_time=self.start_time,
+            end_time=self.end_time,
+            elapsed=self.elapsed,
+        )
+
+    def __repr__(self):
+        if self.elapsed is not None:
+            return "Timer(title=%s, elapsed=%.6f)" % (self.title, self.elapsed)
+        else:
+            return "Timer(title=%s)" % self.title
+
+    def _get_current_time(self):
+        raise NotImplementedError
+
+    def _get_delta_in_sec(self, start, end):
+        raise NotImplementedError
 
     def start(self):
-        self._start = time.clock()
+        self.start_time = self._get_current_time()
 
     def end(self):
-        self._end = time.clock()
-        self._elapsed = self._end - self._start
-        if self._display:
-            self.display()
-
-    def display(self):
-        print(self._template.format(elapsed=self._elapsed))
+        self.end_time = self._get_current_time()
+        self.elapsed = self._get_delta_in_sec(self.start_time, self.end_time)
+        if self.display:
+            print(self)
 
     def __enter__(self):
         self.start()
         return self
 
-    def __exit__(self, *exc_info):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         self.end()
 
-    @property
-    def elapsed(self):
-        return self._elapsed
 
+class DateTimeTimer(BaseTimer):
+    """
+    Usage::
 
-class EasyTimer(object):
-    """A Timer can measure execution time of multiple block of time, respectively.
+        # usage 1
+        >>> timer = DateTimeTimer(title="first measure") # start measuring immediately, title is optional
+        >>> # .. do something
+        >>> timer.end()
+
+        # usage 2
+        >>> with DateTimeTimer(title="second measure") as timer:
+        ...     # do something
+        >>> timer.end()
+
+        # usage 3
+        >>> timer = DateTimeTimer(start=False) # not start immediately
+        >>> # do something
+        >>> timer.start()
+        >>> # do someting
+        >>> timer.end()
+
+        # usage 4
+        >>> timer = DateTimeTimer(display=False) # disable auto display information
+
+    .. warning::
+
+        DateTimeTimer has around 0.003 seconds error in average for each measure.
     """
 
-    def __init__(self):
-        self.st = None
-        self.ed = None
-        self.elapsed = None
-        self.records = list()
+    def _get_current_time(self):
+        return datetime.utcnow()
+
+    def _get_delta_in_sec(self, start, end):
+        return (end - start).total_seconds()
+
+
+class TimeTimer(BaseTimer):
+    """
+    Similar to :class:`DateTimeTimer`
+
+    .. warning::
+
+        DateTimeTimer has around 0.003 seconds error in average for each measure.
+    """
+
+    def _get_current_time(self):
+        return time.time()
+
+    def _get_delta_in_sec(self, start, end):
+        return end - start
+
+
+class SerialTimer(object):
+    def __init__(self, timer_klass=DateTimeTimer):
+        """
+        :param timer_klass:
+        """
+        self.timer_klass = timer_klass
+        self.current_timer = None
+        self.last_stopped_timer = None
+        self.history_stopped_timer = list()
+
+    def start(self, title=None, display=True):
+        self.current_timer = self.timer_klass(title, display)
+        self.current_timer.start()
+
+    def _measure(self):
+        if self.current_timer is None:
+            raise RuntimeError("please call SerialTimer.start() first!")
+        self.current_timer.end()
+        self.last_stopped_timer = self.current_timer
+        self.history_stopped_timer.append(self.last_stopped_timer)
+
+    def end(self):
+        self._measure()
+        self.current_timer = None
+
+    def click(self, title=None, display=True):
+        self._measure()
+        self.current_timer = self.timer_klass(title, display)
 
     @property
-    def total_elapsed(self):
-        return sum(self.records)
+    def last(self):
+        return self.last_stopped_timer
 
-    # single time, multiple time measurement
-    def start(self):
-        """Start measuring.
-        """
-        self.st = time.clock()
-
-    def stop(self):
-        """Save last elapse time to self.records.
-        """
-        self.ed = time.clock()
-        self.elapsed = self.ed - self.st
-        self.records.append(self.elapsed)
-
-    def timeup(self):
-        """Print the last measurement elapse time, and return it.
-        """
-        self.stop()
-        self.display()
-
-    def click(self):
-        """Record the last elapse time and start the next measurement.
-        """
-        self.stop()
-        self.start()
-
-    def display(self):
-        """Print the last elapse time.
-        """
-        print("Elapsed %.6f seconds" % self.elapsed)
-
-    def reset(self):
-        """Reset the timer.
-        """
-        self.elapsed = 0.0
-        self.records = list()
+    @property
+    def history(self):
+        return self.history_stopped_timer
 
 
 def timeit_wrapper(func, *args, **kwargs):
@@ -124,10 +176,13 @@ def timeit_wrapper(func, *args, **kwargs):
     Usage::
 
         >>> import timeit
-        >>> def func(*args, **kwargs): pass
+        >>> def func(*args, **kwargs):
+        ...     pass # a function you want to measure
         >>> timeit.timeit(timeit_wrapper(func, *args, **kwargs), number=10)
         0.000153
     """
+
     def wrapper():
         return func(*args, **kwargs)
+
     return wrapper

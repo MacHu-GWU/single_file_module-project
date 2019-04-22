@@ -1,50 +1,84 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import pytest
+import time
 import timeit
-from sfm.timer import *
+import random
+from sfm.timer import BaseTimer, DateTimeTimer, TimeTimer, SerialTimer, timeit_wrapper
 
 
-def test_Timer():
-    n = 1000
-    l = list(range(n))
-
-    title = "C++ Style for loop"
-    # Context Manager Syntax
-    with Timer(display=True, title=title) as timer:
-        for index in range(n):
-            l[index]
-    timer.elapsed
-
-    # Objective Oriented
-    title = "Python Style for loop"
-    timer = Timer(display=True, title=title)
-    timer.start()
-    for i in l:
-        i
-    timer.end()
+def sleep_random_time(min=0, max=0.1):
+    length = random.random() * (max - min) + min
+    time.sleep(length)
 
 
-def test_EasyTimer():
-    import random
+class TestDateTimeTimer(object):
+    def test(self):
+        # usage1
+        timer = TimeTimer(title="basic DateTimeTimer test")
+        sleep_random_time()
+        timer.end()
 
-    def sleep_random_time():
-        time.sleep(random.randint(100, 1000) / 1000.0)
+        # usage2
+        with DateTimeTimer(title="basic DateTimeTimer test") as timer:
+            sleep_random_time()
 
-    timer = EasyTimer()
+        # usage3
+        timer = DateTimeTimer(title="basic DateTimeTimer test", start=False)
+        timer.start()
+        sleep_random_time()
+        timer.end()
 
-    timer.start()
-    sleep_random_time()
-    timer.timeup()
+        # usage4
+        with DateTimeTimer(title="basic DateTimeTimer test", start=False) as timer:
+            sleep_random_time()
 
-    timer.start()
-    sleep_random_time()
-    timer.timeup()
+    def test_avg_error(self):
+        measures = list()
+        for i in range(10):
+            with DateTimeTimer(display=False) as timer:
+                time.sleep(0.1)
+            measures.append(timer.elapsed)
 
-    timer.start()
-    sleep_random_time()
-    timer.timeup()
+        avg_error = (sum(measures) - 1) / 10
+        print("DateTimeTimer has %.6f seconds average error" % avg_error)
+
+
+class TestTimeTimer(object):
+    def test_avg_error(self):
+        measures = list()
+        for i in range(10):
+            with TimeTimer(display=False) as timer:
+                time.sleep(0.1)
+            measures.append(timer.elapsed)
+
+        avg_error = (sum(measures) - 1) / 10
+        print("TimeTimer has %.6f seconds average error" % avg_error)
+
+
+class TestSerialTimer(object):
+    def test(self):
+        stimer = SerialTimer()
+        with pytest.raises(RuntimeError):
+            stimer.end()
+
+        stimer.start(title="first measure")
+        sleep_random_time()
+        stimer.end()
+        with pytest.raises(RuntimeError):
+            stimer.end()
+
+        stimer.start(title="second measure")
+        sleep_random_time()
+        stimer.click(title="third measure")
+        sleep_random_time()
+        stimer.click(title="fourth measure")
+        stimer.end()
+
+        assert isinstance(stimer.last, BaseTimer)
+        assert isinstance(stimer.history, list)
+        assert len(stimer.history) == 4
+        assert isinstance(stimer.history[0], BaseTimer)
 
 
 def test_timeit():
@@ -56,13 +90,24 @@ def test_timeit():
         for _ in range(n):
             pass
 
-    def for_loop(n):
-        for _ in range(n):
-            pass
-
     n = 10 ** 6
-    elapsed = timeit.timeit(timeit_wrapper(for_loop, n), number=10)
-    # print(elapsed)
+    number = 10
+    # multiple time run total elapsed
+    elapsed_measured_by_timeit = timeit.timeit(timeit_wrapper(for_loop, n), number=number)
+
+    #
+    with DateTimeTimer(display=False) as timer:
+        for _ in range(number):
+            for_loop(n)
+    elapsed_measured_by_timer = timer.elapsed
+
+    # simple time run elapsed
+    st = time.time()
+    for_loop(n)
+    elapsed_single_run = time.time() - st
+
+    assert elapsed_measured_by_timeit > elapsed_single_run * number / 2
+    assert elapsed_measured_by_timer > elapsed_single_run * number / 2
 
 
 if __name__ == "__main__":
