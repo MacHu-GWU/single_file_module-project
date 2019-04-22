@@ -53,7 +53,24 @@ class GeoSearchEngine(object):
                              )
 
     def train(self, data, key_id, key_lat, key_lng, clear_old=True):
-        """Feed data into database.
+        """
+        Feed data into database.
+
+        :type data: list
+        :param data: list of point object, can have other metadata, for example:
+            [{"id": 10001, "lat": xxx, "lng": xxx}, ...]
+
+        :type key_id: callable
+        :param key_id: callable function, take point object as input, return object
+            id, for example: lambda x: x["id"]
+
+        :type key_lat: callable
+        :param key_lat: callable function, take point object as input, return object
+            latitude, for example: lambda x: x["lat"]
+
+        :type key_lng: callable
+        :param key_lng: callable function, take point object as input, return object
+            longitude, for example: lambda x: x["lng"]
         """
         engine, t_point = self.engine, self.t_point
         if clear_old:
