@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -63,7 +62,7 @@ def rand_alphastr(length, lower=True, upper=True):
     if lower is False and upper is True:
         return rand_str(length, allowed=string.ascii_uppercase)
     else:
-        raise
+        raise Exception
 
 
 def rand_pwd(length):

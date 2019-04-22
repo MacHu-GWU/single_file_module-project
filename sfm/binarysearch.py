@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -30,7 +29,13 @@ import bisect
 
 
 def find_index(array, x):
-    """Locate the leftmost value exactly equal to x.
+    """
+    Locate the leftmost value exactly equal to x.
+
+    :type array: list
+    :param array: an iterable object that support inex
+
+    :param x: a comparable value
 
     **中文文档**
 
@@ -43,7 +48,13 @@ def find_index(array, x):
 
 
 def find_lt(array, x):
-    """Find rightmost value less than x.
+    """
+    Find rightmost value less than x.
+
+    :type array: list
+    :param array: an iterable object that support inex
+
+    :param x: a comparable value
 
     Example::
 
@@ -61,7 +72,13 @@ def find_lt(array, x):
 
 
 def find_le(array, x):
-    """Find rightmost value less than or equal to x.
+    """
+    Find rightmost value less than or equal to x.
+
+    :type array: list
+    :param array: an iterable object that support inex
+
+    :param x: a comparable value
 
     Example::
 
@@ -79,7 +96,13 @@ def find_le(array, x):
 
 
 def find_gt(array, x):
-    """Find leftmost value greater than x.
+    """
+    Find leftmost value greater than x.
+
+    :type array: list
+    :param array: an iterable object that support inex
+
+    :param x: a comparable value
 
     Example::
 
@@ -97,7 +120,13 @@ def find_gt(array, x):
 
 
 def find_ge(array, x):
-    """Find leftmost item greater than or equal to x.
+    """
+    Find leftmost item greater than or equal to x.
+
+    :type array: list
+    :param array: an iterable object that support inex
+
+    :param x: a comparable value
 
     Example::
 
@@ -115,7 +144,13 @@ def find_ge(array, x):
 
 
 def find_nearest(sorted_list, x):
-    """Find the nearest item of x from sorted array.
+    """
+    Find the nearest item of x from sorted array.
+
+    :type array: list
+    :param array: an iterable object that support inex
+
+    :param x: a comparable value
 
     note: for finding the nearest item from a descending array, I recommend
     find_nearest(sorted_list[::-1], x). Because the built-in list[::-1] method
@@ -144,7 +179,13 @@ def find_nearest(sorted_list, x):
 
 
 def find_last_true(sorted_list, true_criterion):
-    """Suppose we have a list of item [item1, item2, ..., itemN].
+    """
+    Suppose we have a list of item [item1, item2, ..., itemN].
+
+    :type array: list
+    :param array: an iterable object that support inex
+
+    :param x: a comparable value
 
     If we do a mapping::
 
@@ -189,7 +230,6 @@ def find_last_true(sorted_list, true_criterion):
     我们检验最中间的元素, 如果为False, 那么则检验左边所有未检验过的元素的最中间
     的那个。如果为True, 那么检验右边所有未检验过的元素的最中间那个。重复这一过程
     直到被检验的元素为True, 而下一个元素为False, 说明找到了。
-
 
     例题::
 

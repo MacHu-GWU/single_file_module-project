@@ -1,8 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import platform
 import pytest
 from sfm.fingerprint import fingerprint
 from six import integer_types, string_types

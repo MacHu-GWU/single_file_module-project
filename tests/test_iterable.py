@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import time
@@ -8,7 +7,8 @@ from collections import OrderedDict
 
 
 def test_flatten():
-    """测试 :func:`~sfm.iterable.flatten`  的功能。
+    """
+    测试 :func:`~sfm.iterable.flatten`  的功能。
     """
     assert list(iterable.flatten([[1, 2], [3, 4]])) == [1, 2, 3, 4]
     assert list(iterable.flatten([["a", "b"], ["c", "d"]])) == [
@@ -17,7 +17,8 @@ def test_flatten():
 
 
 def test_flatten_performance():
-    """测试 :func:`~sfm.iterable.flatten`  的性能。
+    """
+    测试 :func:`~sfm.iterable.flatten`  的性能。
 
     **中文文档**
 
@@ -44,7 +45,8 @@ def test_flatten_performance():
 
 
 def test_flatten_all():
-    """测试 :func:`~sfm.iterable.flatten_all`  的功能。
+    """
+    测试 :func:`~sfm.iterable.flatten_all`  的功能。
     """
     nested_iterable = [[1, 2], "abc", [3, ["x", "y", "z"]], 4]
     assert list(iterable.flatten_all(nested_iterable)) == [
@@ -52,7 +54,8 @@ def test_flatten_all():
 
 
 def test_nth():
-    """测试 :func:`~sfm.iterable.nth`  的功能。
+    """
+    测试 :func:`~sfm.iterable.nth`  的功能。
     """
     array = [0, 1, 2]
     assert iterable.nth(array, 1) == 1
@@ -60,7 +63,8 @@ def test_nth():
 
 
 def test_take():
-    """测试 :func:`~sfm.iterable.take`  的功能。
+    """
+    测试 :func:`~sfm.iterable.take`  的功能。
     """
     array = [0, 1, 2]
     assert iterable.take(array, 0) == []

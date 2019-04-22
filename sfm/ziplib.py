@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -10,7 +9,6 @@ import types
 import zlib
 import base64
 import pickle
-
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3

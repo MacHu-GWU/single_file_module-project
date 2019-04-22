@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import pytest
@@ -6,7 +5,6 @@ from sfm import string_match
 
 
 def test_choose_best():
-
     choice = [
         "Atlanta Falcons",
         "New Cow Jets",
@@ -16,7 +14,7 @@ def test_choose_best():
     ]
     text = "cowboy"
     res = string_match.choose_best(text, choice)
-    print(res)
+    assert res == "Dallas Cowboys"
 
 
 if __name__ == "__main__":

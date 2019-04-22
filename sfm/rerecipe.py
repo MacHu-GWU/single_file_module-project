@@ -10,7 +10,11 @@ generate re pattern.
 import re
 
 
-def extract_by_prefix_surfix(text, prefix, surfix, minlen=None, maxlen=None,
+def extract_by_prefix_surfix(text,
+                             prefix,
+                             surfix,
+                             minlen=None,
+                             maxlen=None,
                              include=False):
     """Extract the text in between a prefix and surfix. It use non-greedy match.
 

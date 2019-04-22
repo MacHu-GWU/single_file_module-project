@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -106,9 +105,8 @@ def format_filename(text):
     return text
 
 
-def format_CapitalizedWord(text):
+def format_camel_case(text):
     """
-
     Example::
 
         ThisIsVeryGood
@@ -119,7 +117,7 @@ def format_CapitalizedWord(text):
     """
     text = text.strip()
     if len(text) == 0:  # if empty string, return it
-        return text
+        raise ValueError("can not be empty string!")
     else:
         text = text.lower()  # lower all char
         # delete redundant empty space
@@ -137,3 +135,42 @@ def format_CapitalizedWord(text):
 
         words = [word[0].upper() + word[1:] for word in words]
         return "".join(words)
+
+
+def format_small_camel_case(text):
+    """
+    Example::
+
+        thisIsVeryGood
+    """
+    text = format_camel_case(text)
+    return text[0].lower() + text[1:]
+
+
+def format_unix_var(text):
+    """
+    Example::
+
+        this_is_very_good
+    """
+    text = text.strip()
+    if len(text) == 0:  # if empty string, return it
+        raise ValueError("can not be empty string!")
+    else:
+        if text[0] in string.digits:
+            raise ValueError("variable can not start with digits!")
+        text = text.lower()
+        # delete redundant empty space
+        words = list()
+        word = list()
+        for char in text:
+            if char in ALPHA_DIGITS:
+                word.append(char)
+            else:
+                if len(word):
+                    words.append("".join(word))
+                    word = list()
+        if len(word):
+            words.append("".join(word))
+
+        return "_".join(words)

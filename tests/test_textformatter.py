@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import pytest
@@ -23,14 +22,24 @@ def test_format_person_name():
     text = " michael  jackson "
     expect = "Michael Jackson"
     assert textformatter.format_person_name(text) == expect
-    assert textformatter.format_person_name("") == ""
 
 
-def test_format_format_CapitalizedWord():
+def test_format_camel_case():
     text = "  variable  name - is_very__very_good "
     expect = "VariableNameIsVeryVeryGood"
-    assert textformatter.format_CapitalizedWord(text) == expect
-    assert textformatter.format_person_name("") == ""
+    assert textformatter.format_camel_case(text) == expect
+
+
+def test_format_small_camel_case():
+    text = "  variable  name - is_very__very_good "
+    expect = "variableNameIsVeryVeryGood"
+    assert textformatter.format_small_camel_case(text) == expect
+
+
+def test_format_unix_var():
+    text = "  Variable  Name - is_very__very_Good "
+    expect = "variable_name_is_very_very_good"
+    assert textformatter.format_unix_var(text) == expect
 
 
 if __name__ == "__main__":
