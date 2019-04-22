@@ -1,4 +1,3 @@
-
 .. image:: https://readthedocs.org/projects/sfm/badge/?version=latest
     :target: https://sfm.readthedocs.io/index.html
     :alt: Documentation Status
@@ -53,6 +52,62 @@ Welcome to ``sfm`` Documentation
 ==============================================================================
 
 Collection of useful single file module. Please install required package respectively when needed.
+
+
+winzip module
+------------------------------------------------------------------------------
+Suppose this is your file structure:
+
+.. code-block:: bash
+
+    /alice ($HOME)
+        /Document
+            /word
+                /paper1.doc
+                /paper2.doc
+            /excel
+                /data1.xlsx
+                /data2.xlsx
+            /readme.txt
+
+Usage:
+
+.. code-block:: python
+
+    >>> from sfm.winzip import zip_a_folder, zip_everything_in_a_folder, zip_many_files
+    >>> zip_a_folder("/Users/alice/Document", "/Users/alice/document.zip")
+    >>> zip_everything_in_a_folder("/Users/alice/Document", "/Users/alice/document.zip")
+    >>> zip_many_files(
+        [
+            "/Users/alice/Document/word/paper1.doc",
+            "/Users/alice/Document/excel/data1.xlsx",
+            "/Users/alice/Document/readme.txt",
+        ],
+        "/Users/alice/document.zip"
+    )
+    
+
+timer module
+------------------------------------------------------------------------------
+Usage:
+
+.. code-block:: python
+
+    >>> import time
+    >>> from sfm.timer import DateTimeTimer
+
+    >>> with DateTimeTimer(title="first measure") as timer:
+    ...     time.sleep(1)
+    from xxxx-xx-xx xx:xx:xx.xxx to xxxx-xx-xx xx:xx:xx.xxx elapsed 1.000000 second.
+
+    >>> timer = DateTimeTimer(title="second measure")
+    >>> timer.start()
+    >>> time.sleep(1)
+    >>> timer.end()
+    from xxxx-xx-xx xx:xx:xx.xxx to xxxx-xx-xx xx:xx:xx.xxx elapsed 1.000000 second.
+
+
+And a lot more!
 
 
 .. _install:
